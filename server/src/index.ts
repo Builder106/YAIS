@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cron from 'node-cron';
 import { eq, lte, and } from 'drizzle-orm';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { env } from './lib/env.js';
 import { getDb, schema } from './db/index.js';
 import { seedDemoData } from './db/seed.js';
@@ -72,16 +74,32 @@ async function dispatchDueReminders() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const app = await createApp();
-  app.listen(env.PORT, () => {
-    console.log(`[medcore-api] listening on http://localhost:${env.PORT}`);
-  });
+function isDirectEntry() {
+  if (process.env.VITEST || process.env.NODE_ENV === 'test') return false;
+  const argv = process.argv[1];
+  if (!argv) return false;
+  try {
+    return resolve(fileURLToPath(import.meta.url)) === resolve(argv);
+  } catch {
+    return false;
+  }
+}
 
-  cron.schedule('* * * * *', () => {
-    dispatchDueReminders().catch(err => console.error('[cron:reminders]', err));
-  });
-  cron.schedule('0 * * * *', () => {
-    purgeExpiredAudio().catch(err => console.error('[cron:audio]', err));
-  });
+if (isDirectEntry()) {
+  try {
+    const app = await createApp();
+    app.listen(env.PORT, () => {
+      console.log(`[medcore-api] listening on http://localhost:${env.PORT}`);
+    });
+
+    cron.schedule('* * * * *', () => {
+      dispatchDueReminders().catch(err => console.error('[cron:reminders]', err));
+    });
+    cron.schedule('0 * * * *', () => {
+      purgeExpiredAudio().catch(err => console.error('[cron:audio]', err));
+    });
+  } catch (err) {
+    console.error('[medcore-api] failed to start', err);
+    process.exit(1);
+  }
 }
