@@ -84,12 +84,12 @@ Use **separate sign-ins** on each device (or **Sign out** and log in as the othe
    → Shows F5 delivery + PWA install.
 3. **[Laptop / Doctor]** Refresh the patient's adherence view. The tap you just did on the phone is already logged.
    → Closes the loop; this is the "wow".
-4. **[Phone / Patient]** Open **Health ID** (patient is already signed in), show the QR.
-5. **[Laptop / Doctor]** Use the doctor's scan flow (or just point the laptop camera at the phone) to pull up the same patient.
-   → Shows F8 portable identity.
+4. **[Phone / Patient]** Open **Health ID**, show the QR (encodes patient identity JSON for the **demo card**).
+5. **[Doctor device — laptop or phone]** Logged in as **Doctor**, open **Patients** and search **`PAT-001`** (or tap the patient row). The **Scan QR** button is cosmetic in this MVP — there is no camera scanner wired up. **If the doctor uses a second phone:** same as laptop: Patients → search `PAT-001` → open chart.
+   → Shows F8 (portable ID + same chart from the clinician side).
 6. **[Laptop / Doctor]** **Voice Consult**. Record ~20 seconds, e.g. *"Patient reports headache, BP 140/90, assessment hypertension, plan amlodipine 5mg."* → SOAP note fills in.
    → Shows F2 (dictation + structured note on the **chart** — there is no separate “send recording to patient’s phone” in the MVP; the patient does **not** get a voice message or push from this flow).
-7. **[Both]** **Video consult** — see §3: doctor and patient must use the **same room URL** (copy from the doctor’s in-call panel); see Jitsi notes below.
+7. **[Both]** **Video consult** — ensure **both** devices use **`PAT-001`** as the active patient, then each taps **Start call** (see §3: **same Jitsi room** without copying a URL).
    → F3.
 
 Audience walks away with **"oh, it's one system for both sides."**
@@ -184,16 +184,15 @@ A video consult viewed on a laptop is meaningless — telemedicine is about a pa
 
 ### Show it
 
-**Important (how rooms work in this build):** Each tap on **Start call** creates a **new** session and thus a **new** room URL (`meet.jit.si/...` when Daily isn’t configured). Two devices both pressing **Start** end up in **different** rooms unless you align them manually.
+**Jitsi without Daily keys (default demo):** The server maps each **patient** to **one stable `meet.jit.si` room** (e.g. patient `PAT-001` → room `medcorepat001`). So **doctor and patient can each tap Start call** and still land in the **same** room — no copying URLs, no env variables. Both sides must use the **same `currentPatientId`** (`PAT-001` in the demo).
 
-Option A — **Two-device demo (best)**:
+**Two-device demo (low friction):**
 
-1. On the **laptop**, log in as **Doctor** → **Video Consult** → **Start call**. Wait until the Jitsi/Daily iframe loads.
-2. Copy the **Room URL (demo)** shown under the in-call panel (same URL as the iframe `src`).
-3. On the **phone**, **open that exact URL** in Safari or Chrome (you can AirDrop or QR the string). Do **not** rely on tapping **Start call** again on the phone unless you want a second, empty room.
-4. Put devices side by side — both participants are now in **one** room.
+1. **Doctor** (laptop or phone): `DOC-001` → **Video Consult** → confirm patient field shows **PAT-001** → **Start call** and allow camera/mic.
+2. **Patient** (`PAT-001`): **Video Consult** → **Start call**.
+3. You should see each other in one Jitsi room. If a rare lobby/moderator prompt appears on public `meet.jit.si`, **doctor joins first**, patient second, or both tap **Join** if asked.
 
-**Jitsi (`meet.jit.si`) behavior:** On the public server, some rooms effectively treat the **first person in** as the meeting owner / moderator for admit flows. If one side gets stuck on a **lobby** or **“Waiting for the moderator”** screen, have the **doctor join first**, then the patient opens the same link. If it still fails, try both sides in the same browser family or refresh. **Daily.co** (with `DAILY_API_KEY` + domain) avoids most of this and is the smoother path for a polished demo.
+**Note:** With **Daily.co** configured, each session still gets its own Daily room; behavior differs from Jitsi fallback above.
 
 Option B — **Phone-only walkthrough**:
 
@@ -205,7 +204,7 @@ Option B — **Phone-only walkthrough**:
 
 ### Talking point
 
-"Pre-call device checks, bandwidth-aware degradation, post-call SOAP note persisted to the patient record. Daily.co for production, Jitsi as fallback. The disclaimer is non-skippable — legally required."
+"Pre-call device checks, bandwidth-aware degradation, post-call notes persisted to the patient record. Without Daily API keys we pin Jitsi to a **per-patient room name** so two clients can join without sharing links. With Daily, each session is its own hosted room."
 
 ---
 
@@ -291,23 +290,26 @@ Use the `/sms-inbox` simulator on the laptop. Type the same commands into the "S
 
 ### Why phone
 
-QR scanning is literally a phone camera operation. Showing it on two devices (card/laptop QR → phone scanner) is the whole point.
+The **card UI** and QR read well on a small screen; the clinician story is “same record, any device.”
+
+### What the QR actually is (this MVP)
+
+The QR encodes **JSON** (patient id, name, national id, dob) — **not** a `https://` app link. So the **system camera app will not deep-link into MedCore**. For this demo, treat the QR as a **visual prop** for “scannable ID at intake”; pair it with **Patients → search `PAT-001`** on the doctor side.
 
 ### Requires
 
-- Tunnel URL open on phone (so the scanned link resolves back into the same app).
-- Phone's native Camera app (it auto-detects QR codes on iOS and modern Android).
+- Same tunnel URL on both devices if you open the app in multiple browsers (optional for search-based flow).
 
 ### Show it
 
-1. **Laptop** (Patient role): navigate to **Health ID** page. A QR code fills the screen, encoding something like `https://<tunnel>/patients/PAT-001`.
-2. Point your phone's camera at the laptop screen — no special app needed. A yellow banner appears: "Open in Safari: MedCore".
-3. Tap the banner → phone opens the patient chart directly.
-4. Bonus: hand your phone to someone else (acting as "the doctor receiving the ID") — they scan, they get the chart. The pitch: the patient's ID card *is* their medical record.
+1. **Patient phone**: **Health ID** — show the card + QR (audience sees a realistic “ID card”).
+2. **Doctor (laptop or phone, logged in as `DOC-001`)**: **Patients** → search **`PAT-001`** → open the chart.  
+   - **Yes, the doctor can use their own phone** — sign in as doctor on that phone and search the id the same way.  
+   - The **Scan QR** control on Patients is **not** connected to a camera in this build; use search for the demo.
 
 ### Talking point
 
-"Patients carry a printed or digital ID card. Any clinician with MedCore access scans it and has the full record — no fax, no phone tag, no lost files."
+"In production, the payload would resolve through your QR workflow (or an embedded URL). Here we show the **card +** instant chart lookup by id to sell the workflow."
 
 ---
 
@@ -345,21 +347,20 @@ That reinforces the "works on any phone" narrative even if you don't wire it up 
 Tape this to your laptop:
 
 ```
-LAPTOP
-  1. Role = Doctor
-     • /prescriptions → Aspirin + Warfarin → PIN 4242 override
-     • /sms-inbox     → simulate inbound, reply appears
-     • /reminders     → Send test reminder
+LAPTOP (DOC-001 / 4242)
+  • /patients → PAT-001 chart                  (F8 doctor side; search works on phone too)
+  • /prescriptions → Aspirin + Warfarin → PIN 4242 override
+  • /sms-inbox     → simulate inbound
+  • /reminders     → Send test reminder
 
-PHONE (tunnel URL)
-  2. Add to Home Screen                     (Feature 1)
-  3. /voice-consult → record 20 s → SOAP    (Feature 2)
-  4. /video-consult → join doctor call      (Feature 3)
-  5. /reminders    → Enable push, lock phone (Feature 4)
-     → (laptop sends test → lockscreen lights up)
-  6. SMS "PATIENT PAT-001 PIN:4242"         (Feature 5)
-  7. Camera at laptop's /health-id QR       (Feature 6)
-  8. Wi-Fi OFF, load tunnel on LTE          (Feature 7)
+PHONE PATIENT (PAT-001 / 1212, tunnel URL)
+  • Add to Home Screen                       (Feature 1)
+  • /voice-consult → record 20 s → SOAP      (Feature 2)
+  • /video-consult → PAT-001 → Start (same Jitsi room as doctor; Feature 3)
+  • /reminders   → push, lock phone          (Feature 4)
+  • SMS PATIENT PAT-001 PIN:4242             (Feature 5)
+  • /health-id   → show QR card              (Feature 6 — pair with doctor Search PAT-001)
+  • Wi-Fi OFF, tunnel on LTE                 (Feature 7)
 ```
 
 Total demo length: 5–7 minutes to hit all seven. 10–12 if you want to slow down on voice + video + push (the three that usually wow people).

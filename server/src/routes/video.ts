@@ -17,7 +17,10 @@ videoRouter.post('/video/sessions', async (req, res) => {
   const parsed = StartBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
   const id = newId('VID');
-  const room = await createVideoRoom(`medcore-${id.toLowerCase()}`);
+  const room = await createVideoRoom({
+    patientId: parsed.data.patientId,
+    dailyRoomName: `medcore-${id.toLowerCase()}`,
+  });
   const { db } = await getDb();
   await db.insert(schema.videoConsultations).values({
     id,

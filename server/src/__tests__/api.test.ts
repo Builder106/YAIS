@@ -146,4 +146,15 @@ describe('Video consult (F3)', () => {
     expect(res.body.room.url).toMatch(/https?:/);
     expect(['daily', 'mock']).toContain(res.body.room.provider);
   });
+
+  it('reuses the same Jitsi room URL for the same patient without Daily keys', async () => {
+    const a = await agent.post('/api/video/sessions').send({ patientId: 'PAT-001', doctorId: 'DOC-001' });
+    const b = await agent.post('/api/video/sessions').send({ patientId: 'PAT-001', doctorId: 'DOC-001' });
+    expect(a.status).toBe(201);
+    expect(b.status).toBe(201);
+    expect(a.body.room.provider).toBe('mock');
+    expect(a.body.room.url).toBe(b.body.room.url);
+    expect(a.body.room.url).toContain('meet.jit.si');
+    expect(a.body.room.url).toContain('medcorepat001');
+  });
 });
