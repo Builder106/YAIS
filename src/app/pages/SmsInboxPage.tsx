@@ -53,6 +53,26 @@ export function SmsInboxPage() {
 
       <section className="af-elevate rounded-2xl border border-[#D9C8AE] bg-white p-5">
         <h2 className="text-sm uppercase tracking-widest text-[#5B5149] mb-3 flex items-center gap-2"><Send className="w-4 h-4" />{t('sms.simulateTitle')}</h2>
+        <div className="mb-4 rounded-xl border border-[#E7CD72] bg-[#FFF9E8] px-3 py-2.5 text-[13px] text-[#5C3A2E] space-y-1.5">
+          <p>{t('sms.commandHelp')}</p>
+          <p className="font-medium">{t('sms.commandPattern')}</p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setSimBody('NOTE PAT-001 PIN:4242 Hi, you are cancer-free.')}
+              className="af-press af-focus text-xs px-2.5 py-1.5 rounded-lg border border-[#D9C8AE] bg-white text-[#214838]"
+            >
+              {t('sms.fillExampleNote')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSimBody('PATIENT PAT-001 PIN:4242')}
+              className="af-press af-focus text-xs px-2.5 py-1.5 rounded-lg border border-[#D9C8AE] bg-white text-[#214838]"
+            >
+              {t('sms.fillExamplePatient')}
+            </button>
+          </div>
+        </div>
         <form onSubmit={onSimulate} className="grid md:grid-cols-3 gap-3 items-end">
           <label className="text-xs text-[#5B5149] flex flex-col gap-1">
             {t('sms.simulateFrom')}
@@ -60,7 +80,13 @@ export function SmsInboxPage() {
           </label>
           <label className="text-xs text-[#5B5149] flex flex-col gap-1 md:col-span-2">
             {t('sms.simulateBody')}
-            <input className="af-focus notranslate rounded-lg border border-[#D9C8AE] px-3 py-2 text-sm font-mono" value={simBody} onChange={e => setSimBody(e.target.value)} translate="no" />
+            <textarea
+              className="af-focus notranslate rounded-lg border border-[#D9C8AE] px-3 py-2 text-sm font-mono min-h-[4.5rem] resize-y max-h-40"
+              value={simBody}
+              onChange={e => setSimBody(e.target.value)}
+              translate="no"
+              rows={3}
+            />
           </label>
           <button className="af-press af-focus md:col-span-3 w-fit bg-[#214838] text-[#F7F1E6] px-4 py-2 rounded-lg text-sm" type="submit">
             {t('sms.simulateSend')}

@@ -79,8 +79,8 @@ smsRouter.post('/sms/inbound', async (req, res) => {
       fromNumber: from,
       toNumber: to,
       body: text,
-      responseSnippet: cmd.error.slice(0, 60),
-      status: 'failed',
+      responseSnippet: 'Reply sent: command format help',
+      status: 'received',
       reply: cmd.error,
     });
     res.json({ ok: false, error: cmd.error });

@@ -13,7 +13,10 @@ export function parseSmsCommand(body: string): ParsedSmsCommand | { error: strin
   const trimmed = body.trim();
   const match = trimmed.match(CMD_RE);
   if (!match) {
-    return { error: 'Unrecognised command. Use: PATIENT|MEDS|NOTE|APPT|EMRG <ID> PIN:<pin> [text]' };
+    return {
+      error:
+        'Not a command. Send: NOTE PAT-001 PIN:4242 your text (demo doctor PIN). Or PATIENT|MEDS|NOTE|APPT|EMRG + patient id + PIN:xxxx + optional text.',
+    };
   }
   const [, rawCmd, patientId, pin, payload] = match;
   return {
