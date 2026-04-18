@@ -59,6 +59,37 @@ Everything you leave blank runs against the built-in mock. Restart `npm run demo
 
 ---
 
+## Recommended setup (what I'd actually do)
+
+**Two devices, two roles, one story.** You stand in front of the room with:
+
+- **Laptop = Doctor** (Clinical Workspace) — projected on screen so audience can see.
+- **Phone = Patient** (Patient Portal) — held in your hand, also mirrored if possible.
+
+Toggle roles using the selector in the top-right header on each device. The role (and language, and current patient ID) persists across reloads, so once you set "Patient" on the phone it stays that way through PWA launches.
+
+### The 5-minute narrative
+
+1. **[Laptop / Doctor]** Open a patient, write a prescription with an interaction warning. Enable the "Send via Push" reminder schedule.
+   → Shows F6 (interactions) + F5 (reminder authoring).
+2. **[Phone / Patient]** Seconds later, a push notification pops. Tap it → opens the PWA to today's reminders. Tap **TAKEN**.
+   → Shows F5 delivery + PWA install.
+3. **[Laptop / Doctor]** Refresh the patient's adherence view. The tap you just did on the phone is already logged.
+   → Closes the loop; this is the "wow".
+4. **[Phone / Patient]** Switch to **Health ID** page, show the QR.
+5. **[Laptop / Doctor]** Use the doctor's scan flow (or just point the laptop camera at the phone) to pull up the same patient.
+   → Shows F8 portable identity.
+6. **[Laptop / Doctor]** Switch role to Doctor → **Voice Consult**. Record 20 seconds: *"Patient reports headache, BP 140/90, assessment hypertension, plan amlodipine 5mg."* → SOAP note fills in.
+   → Shows F2, and proves the doctor-on-phone story too, even though you're doing it on the laptop.
+7. **[Both]** Start a **video consult**; show the phone joining.
+   → F3.
+
+Audience walks away with **"oh, it's one system for both sides."**
+
+The rest of this document is reference material for each feature — what to show, why a phone matters, and the setup needed. Use it to prep, then follow the seven steps above on demo day.
+
+---
+
 ## 1. PWA install — "This is an app, not a webpage"
 
 ### Why phone
