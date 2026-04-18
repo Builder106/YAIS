@@ -24,7 +24,7 @@ export function ReportsPage() {
             <BarChart data={dailyStats.topDiagnoses} layout="vertical">
               <XAxis type="number" tick={{ fontSize: 12 }} />
               <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
-              <Tooltip />
+              <Tooltip trigger="click" wrapperStyle={{ pointerEvents: 'auto' }} />
               <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>

@@ -48,6 +48,7 @@ export function RemindersPage() {
   const [scheduleChannel, setScheduleChannel] = useState<'sms' | 'push'>('sms');
   const [scheduleMsg, setScheduleMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<{ idx: number; doseDate: string; status: string } | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -143,11 +144,11 @@ export function RemindersPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[22px] text-[#1F1B18] flex items-center gap-2"><Bell className="w-5 h-5 text-[#214838]" />{t('reminders.title')}</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={enablePush} disabled={pushStatus === 'enabling' || pushStatus === 'enabled'} className="af-press af-focus px-3 py-2 rounded-lg text-sm bg-[#F3ECE1] border border-[#D9C8AE] text-[#214838] flex items-center gap-2">
+          <button onClick={enablePush} disabled={pushStatus === 'enabling' || pushStatus === 'enabled'} className="af-tap af-press af-focus inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-[#F3ECE1] border border-[#D9C8AE] text-[#214838]">
             <BellRing className="w-4 h-4" />
             {pushStatus === 'enabled' ? t('reminders.pushEnabled') : pushStatus === 'unsupported' ? t('reminders.pushUnsupported') : pushStatus === 'enabling' ? '…' : t('reminders.enablePush')}
           </button>
-          <button onClick={onTestReminder} className="af-press af-focus px-3 py-2 rounded-lg text-sm bg-[#214838] text-[#F7F1E6] flex items-center gap-2">
+          <button onClick={onTestReminder} className="af-tap af-press af-focus inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-[#214838] text-[#F7F1E6]">
             <Send className="w-4 h-4" />{t('reminders.sendTest')}
           </button>
         </div>
@@ -173,9 +174,20 @@ export function RemindersPage() {
             <p className="text-[11px] uppercase tracking-widest text-[#5B5149]">Recent doses</p>
             <div className="flex gap-1 mt-2 flex-wrap">
               {adherence.events.slice(0, 24).map((e, i) => (
-                <span key={i} title={`${e.doseDate} ${e.status}`} className={`w-3 h-3 rounded-sm ${e.status === 'taken' ? 'bg-emerald-500' : e.status === 'skipped' ? 'bg-amber-400' : 'bg-[#D9C8AE]'}`} />
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSelectedEvent(selectedEvent?.idx === i ? null : { idx: i, doseDate: e.doseDate, status: e.status })}
+                  aria-label={`${e.doseDate} ${e.status}`}
+                  className={`af-focus w-4 h-4 rounded-sm transition-transform ${selectedEvent?.idx === i ? 'ring-2 ring-offset-1 ring-[#C39A3D]' : ''} ${e.status === 'taken' ? 'bg-emerald-500' : e.status === 'skipped' ? 'bg-amber-400' : 'bg-[#D9C8AE]'}`}
+                />
               ))}
             </div>
+            {selectedEvent && (
+              <p className="mt-2 text-[12px] text-[#5B5149]">
+                <span className="font-medium text-[#1F1B18]">{selectedEvent.doseDate}</span> · {selectedEvent.status}
+              </p>
+            )}
           </div>
         </section>
       )}
@@ -195,10 +207,18 @@ export function RemindersPage() {
                     <p className="text-xs text-[#5B5149]">Scheduled {new Date(r.scheduledTime).toLocaleString()} · {r.channel}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onRespond(r.id, 'TAKEN')} disabled={busyReminder === r.id} className="af-press af-focus px-3 py-2 rounded-lg text-sm bg-emerald-600 text-white flex items-center gap-1">
+                    <button
+                      onClick={() => onRespond(r.id, 'TAKEN')}
+                      disabled={busyReminder === r.id}
+                      className="af-tap af-press af-focus inline-flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm bg-emerald-600 text-white"
+                    >
                       {busyReminder === r.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} {t('reminders.markTaken')}
                     </button>
-                    <button onClick={() => onRespond(r.id, 'SKIP')} disabled={busyReminder === r.id} className="af-press af-focus px-3 py-2 rounded-lg text-sm bg-[#F3ECE1] border border-[#D9C8AE] text-[#214838] flex items-center gap-1">
+                    <button
+                      onClick={() => onRespond(r.id, 'SKIP')}
+                      disabled={busyReminder === r.id}
+                      className="af-tap af-press af-focus inline-flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm bg-[#F3ECE1] border border-[#D9C8AE] text-[#214838]"
+                    >
                       <XCircle className="w-4 h-4" /> {t('reminders.markSkipped')}
                     </button>
                   </div>

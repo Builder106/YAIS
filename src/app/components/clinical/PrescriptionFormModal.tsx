@@ -128,11 +128,27 @@ export function PrescriptionFormModal({ open, onClose, patientId, doctorId, onSa
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-3" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
-        <div className="p-5 border-b border-[#E7D9BB] flex items-center justify-between">
+    <div
+      className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center sm:p-3"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="sm:hidden flex justify-center pt-2 pb-1" aria-hidden>
+          <div className="h-1.5 w-10 rounded-full bg-[#E1D3B8]" />
+        </div>
+        <div className="px-5 py-4 sm:p-5 border-b border-[#E7D9BB] flex items-center justify-between sticky top-0 bg-white z-10">
           <h2 className="text-lg text-[#1F1B18]">{t('prescriptions.addNew')}</h2>
-          <button onClick={onClose} className="af-press af-focus p-1 rounded-lg hover:bg-[#F3ECE1]" aria-label={t('common.close')}>
+          <button
+            onClick={onClose}
+            className="af-tap af-press af-focus inline-flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#F3ECE1]"
+            aria-label={t('common.close')}
+          >
             <X className="w-5 h-5 text-[#5B5149]" />
           </button>
         </div>
@@ -258,12 +274,17 @@ export function PrescriptionFormModal({ open, onClose, patientId, doctorId, onSa
 
           {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-2">
-            <button onClick={onClose} className="af-press af-focus px-3 py-2 rounded-lg text-sm text-[#5B5149]">{t('common.cancel')}</button>
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2 pt-2">
+            <button
+              onClick={onClose}
+              className="af-tap af-press af-focus px-3 py-2 rounded-lg text-sm text-[#5B5149] border border-[#D9C8AE] sm:border-0 bg-white"
+            >
+              {t('common.cancel')}
+            </button>
             <button
               onClick={submit}
               disabled={!canSubmit}
-              className={`af-press af-focus px-4 py-2 rounded-lg text-sm text-white ${canSubmit ? (hasCritical ? 'bg-red-600 hover:bg-red-700' : 'bg-[#214838] hover:bg-[#1B3D30]') : 'bg-[#9EA4A0] cursor-not-allowed'}`}
+              className={`af-tap af-press af-focus px-4 py-2 rounded-lg text-sm text-white ${canSubmit ? (hasCritical ? 'bg-red-600 hover:bg-red-700' : 'bg-[#214838] hover:bg-[#1B3D30]') : 'bg-[#9EA4A0] cursor-not-allowed'}`}
             >
               {hasCritical ? t('prescriptions.override') : t('common.save')}
             </button>

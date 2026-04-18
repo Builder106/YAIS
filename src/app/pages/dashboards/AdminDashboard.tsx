@@ -84,7 +84,7 @@ export function AdminDashboard() {
             <BarChart data={dailyStats.weeklyTrend}>
               <XAxis dataKey="day" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
+              <Tooltip trigger="click" wrapperStyle={{ pointerEvents: 'auto' }} />
               <Bar dataKey="patients" fill="#f59e0b" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -105,7 +105,7 @@ export function AdminDashboard() {
                 <span className="text-[10px] text-slate-400">occupied</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-4 w-full text-center">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4 w-full text-center">
               <div>
                 <p className="text-[16px] text-slate-900">{facility.beds}</p>
                 <p className="text-[10px] text-slate-400">Total</p>
