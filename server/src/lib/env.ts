@@ -18,8 +18,11 @@ const Schema = z.object({
   AUDIO_RETENTION_DAYS: z.coerce.number().default(30),
   SMS_RESPONSE_TTL_MS: z.coerce.number().default(120000),
   DEMO_DOCTOR_PIN: z.string().default('4242'),
+  DEMO_PATIENT_PIN: z.string().default('1212'),
+  DEMO_ADMIN_PIN: z.string().default('3434'),
   DEMO_DOCTOR_PHONE: z.string().optional(),
   DEMO_PATIENT_PHONE: z.string().optional(),
+  DEMO_ADMIN_PHONE: z.string().optional(),
 });
 
 export const env = Schema.parse(process.env);

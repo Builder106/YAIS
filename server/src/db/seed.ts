@@ -1,56 +1,93 @@
+import { eq } from 'drizzle-orm';
 import { getDb, schema } from './index.js';
 import { hashPin } from '../lib/pin.js';
+import { env } from '../lib/env.js';
 
-export async function seedDemoData() {
-  const { db } = await getDb();
-  const now = Date.now();
+type DemoDb = Awaited<ReturnType<typeof getDb>>['db'];
 
-  const existing = await db.select().from(schema.users).limit(1);
-  if (existing.length > 0) return;
+function shouldSyncDemoIdentityUsers() {
+  if (process.env.NODE_ENV === 'test') return true;
+  if (process.env.NODE_ENV !== 'production') return true;
+  return process.env.MEDCORE_SYNC_DEMO_USERS === '1';
+}
 
-  const demoPin = process.env.DEMO_DOCTOR_PIN ?? '4242';
-  const demoPatientPin = process.env.DEMO_PATIENT_PIN ?? '1212';
-  const demoAdminPin = process.env.DEMO_ADMIN_PIN ?? '3434';
+export async function syncDemoIdentityUsers(db: DemoDb, now: number) {
+  if (!shouldSyncDemoIdentityUsers()) return;
 
-  await db.insert(schema.users).values([
+  const defs = [
     {
       id: 'DOC-001',
       name: 'Dr. Wanjiku Njeri',
-      role: 'doctor',
-      phone: process.env.DEMO_DOCTOR_PHONE ?? '+254700000001',
-      pinHash: hashPin(demoPin),
-      pinRotatedAt: now,
-      failedAttempts: 0,
-      createdAt: now,
+      role: 'doctor' as const,
+      phone: env.DEMO_DOCTOR_PHONE ?? '+254700000001',
+      pin: env.DEMO_DOCTOR_PIN,
     },
     {
       id: 'PAT-001',
       name: 'Amina Okafor',
-      role: 'patient',
-      phone: process.env.DEMO_PATIENT_PHONE ?? '+254700000002',
-      pinHash: hashPin(demoPatientPin),
-      pinRotatedAt: now,
-      failedAttempts: 0,
-      createdAt: now,
+      role: 'patient' as const,
+      phone: env.DEMO_PATIENT_PHONE ?? '+254700000002',
+      pin: env.DEMO_PATIENT_PIN,
     },
     {
       id: 'ADM-001',
       name: 'Facility Admin',
-      role: 'admin',
-      phone: process.env.DEMO_ADMIN_PHONE ?? '+254700000003',
-      pinHash: hashPin(demoAdminPin),
-      pinRotatedAt: now,
-      failedAttempts: 0,
-      createdAt: now,
+      role: 'admin' as const,
+      phone: env.DEMO_ADMIN_PHONE ?? '+254700000003',
+      pin: env.DEMO_ADMIN_PIN,
     },
-  ]).run();
+  ];
+
+  for (const u of defs) {
+    const h = hashPin(u.pin);
+    const [row] = await db.select().from(schema.users).where(eq(schema.users.id, u.id));
+    if (row) {
+      await db
+        .update(schema.users)
+        .set({
+          name: u.name,
+          role: u.role,
+          phone: u.phone,
+          pinHash: h,
+          pinRotatedAt: now,
+          failedAttempts: 0,
+          lockedUntil: null,
+        })
+        .where(eq(schema.users.id, u.id))
+        .run();
+    } else {
+      await db
+        .insert(schema.users)
+        .values({
+          id: u.id,
+          name: u.name,
+          role: u.role,
+          phone: u.phone,
+          pinHash: h,
+          pinRotatedAt: now,
+          failedAttempts: 0,
+          lockedUntil: null,
+          createdAt: now,
+        })
+        .run();
+    }
+  }
+}
+
+export async function seedDemoData() {
+  const { db } = await getDb();
+  const now = Date.now();
+  await syncDemoIdentityUsers(db, now);
+
+  const [patientRow] = await db.select().from(schema.patients).where(eq(schema.patients.id, 'PAT-001'));
+  if (patientRow) return;
 
   await db.insert(schema.patients).values({
     id: 'PAT-001',
     firstName: 'Amina',
     lastName: 'Okafor',
     dob: '1987-03-12',
-    phone: process.env.DEMO_PATIENT_PHONE ?? '+254700000002',
+    phone: env.DEMO_PATIENT_PHONE ?? '+254700000002',
     nationalId: 'KE-887412',
     bloodType: 'O+',
     allergies: JSON.stringify(['Penicillin']),

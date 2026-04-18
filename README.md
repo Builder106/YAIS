@@ -45,6 +45,8 @@ The UI opens a **login** screen first. After you sign in, the API issues an **HT
 
 For production, set `SESSION_SECRET` to a long random string (≥32 characters).
 
+If login says **invalid credentials** for `DOC-001` / `4242` etc., restart the API so it can **resync demo PINs** (dev does this every start). If it still fails, delete `server/data/medcore.db` and restart to recreate the database, or set `MEDCORE_SYNC_DEMO_USERS=1` when `NODE_ENV=production`.
+
 ## Running tests (TDD)
 
 ```bash
