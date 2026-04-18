@@ -13,7 +13,7 @@
     "@libsql/client": "^0.14.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.36.4",
+    "drizzle-orm": "^0.45.2",
     "express": "^4.21.1",
     "helmet": "^8.0.0",
     "multer": "^1.4.5-lts.1",
