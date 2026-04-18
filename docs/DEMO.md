@@ -84,8 +84,8 @@ Use **separate sign-ins** on each device (or **Sign out** and log in as the othe
    → Shows F5 delivery + PWA install.
 3. **[Laptop / Doctor]** Refresh the patient's adherence view. The tap you just did on the phone is already logged.
    → Closes the loop; this is the "wow".
-4. **[Phone / Patient]** Open **Health ID**, show the QR (encodes patient identity JSON for the **demo card**).
-5. **[Doctor device — laptop or phone]** Logged in as **Doctor**, open **Patients** and search **`PAT-001`** (or tap the patient row). The **Scan QR** button is cosmetic in this MVP — there is no camera scanner wired up. **If the doctor uses a second phone:** same as laptop: Patients → search `PAT-001` → open chart.
+4. **[Phone / Patient]** Open **Health ID**, show the QR (encodes a **full URL** to this demo instance: `/patients/PAT-001?from=health-id`).
+5. **[Doctor device — laptop or phone]** Logged in as **Doctor**, use the **system camera** to scan the QR (browser opens the patient chart on the same tunnel origin). **Patients → search `PAT-001`** still works the same if you skip the scan. The **Scan QR** button inside the Patients screen is cosmetic in this MVP — there is no in-app camera scanner wired up.
    → Shows F8 (portable ID + same chart from the clinician side).
 6. **[Laptop / Doctor]** **Voice Consult**. Record ~20 seconds, e.g. *"Patient reports headache, BP 140/90, assessment hypertension, plan amlodipine 5mg."* → SOAP note fills in.
    → Shows F2 (dictation + structured note on the **chart** — there is no separate “send recording to patient’s phone” in the MVP; the patient does **not** get a voice message or push from this flow).
@@ -294,7 +294,7 @@ The **card UI** and QR read well on a small screen; the clinician story is “sa
 
 ### What the QR actually is (this MVP)
 
-The QR encodes **JSON** (patient id, name, national id, dob) — **not** a `https://` app link. So the **system camera app will not deep-link into MedCore**. For this demo, treat the QR as a **visual prop** for “scannable ID at intake”; pair it with **Patients → search `PAT-001`** on the doctor side.
+The QR encodes an **HTTPS URL** on the **same origin** as the app (your tunnel or localhost), e.g. `https://<host>/patients/PAT-001?from=health-id`. The **system camera** can open that link in the browser. The signed-in user must be allowed to view the chart (e.g. doctor logged in on that device). If the camera opens a fresh browser profile with no session, sign in as doctor first or fall back to **Patients → search `PAT-001`**.
 
 ### Requires
 
@@ -303,13 +303,13 @@ The QR encodes **JSON** (patient id, name, national id, dob) — **not** a `http
 ### Show it
 
 1. **Patient phone**: **Health ID** — show the card + QR (audience sees a realistic “ID card”).
-2. **Doctor (laptop or phone, logged in as `DOC-001`)**: **Patients** → search **`PAT-001`** → open the chart.  
-   - **Yes, the doctor can use their own phone** — sign in as doctor on that phone and search the id the same way.  
-   - The **Scan QR** control on Patients is **not** connected to a camera in this build; use search for the demo.
+2. **Doctor (laptop or phone, logged in as `DOC-001`)**: Scan the QR with the **camera app** (or open the encoded URL from a QR reader) to land on **PAT-001**’s chart, **or** use **Patients** → search **`PAT-001`**.  
+   - **Yes, the doctor can use their own phone** — sign in as doctor first if the browser opened by the camera has no MedCore session.  
+   - The **Scan QR** control on the Patients list is **not** connected to a camera in this build; the **system camera** scanning the patient’s Health ID QR is the supported path.
 
 ### Talking point
 
-"In production, the payload would resolve through your QR workflow (or an embedded URL). Here we show the **card +** instant chart lookup by id to sell the workflow."
+"The QR is a stable deep link into the same deployment — scan with any phone camera, or search by id. Either way the chart is the same record."
 
 ---
 
@@ -359,7 +359,7 @@ PHONE PATIENT (PAT-001 / 1212, tunnel URL)
   • /video-consult → PAT-001 → Start (same Jitsi room as doctor; Feature 3)
   • /reminders   → push, lock phone          (Feature 4)
   • SMS PATIENT PAT-001 PIN:4242             (Feature 5)
-  • /health-id   → show QR card              (Feature 6 — pair with doctor Search PAT-001)
+  • /health-id   → QR = chart URL (scan w/ camera) (Feature 6)
   • Wi-Fi OFF, tunnel on LTE                 (Feature 7)
 ```
 

@@ -1,12 +1,25 @@
+import { useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { patients } from '../data/mock-data';
 import { useApp } from '../context/AppContext';
 import { Download, Share2, Shield, Fingerprint } from 'lucide-react';
 
+export function healthIdChartUrl(patientId: string, origin: string) {
+  const path = `/patients/${encodeURIComponent(patientId)}?from=health-id`;
+  try {
+    return new URL(path, origin).href;
+  } catch {
+    return `${origin}${path}`;
+  }
+}
+
 export function HealthIdPage() {
   const { currentPatientId } = useApp();
   const patient = patients.find(p => p.id === currentPatientId)!;
-  const qrData = JSON.stringify({ id: patient.id, nationalId: patient.nationalId, name: `${patient.firstName} ${patient.lastName}`, dob: patient.dob });
+  const chartUrl = useMemo(
+    () => healthIdChartUrl(patient.id, typeof window !== 'undefined' ? window.location.origin : ''),
+    [patient.id],
+  );
 
   return (
     <div className="max-w-md mx-auto space-y-5">
@@ -37,7 +50,7 @@ export function HealthIdPage() {
 
         <div className="p-6 flex flex-col items-center">
           <div className="bg-white p-3 rounded-xl border-2 border-slate-100">
-            <QRCodeSVG value={qrData} size={180} level="H" includeMargin />
+            <QRCodeSVG value={chartUrl} size={180} level="H" includeMargin />
           </div>
 
           <div className="w-full mt-6 space-y-0 divide-y divide-slate-100">
