@@ -1,8 +1,10 @@
 import { useParams, Link } from 'react-router';
-import { patients, encounters, prescriptions, labResults, vaccinations, appointments } from '../data/mock-data';
+import { patients, encounters, prescriptions, labResults, vaccinations } from '../data/mock-data';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, Calendar, Pill, FlaskConical, Syringe, FileText, Bot, AlertTriangle, Clock } from 'lucide-react';
+import { ArrowLeft, Pill, FlaskConical, Syringe, Bot, AlertTriangle, Clock } from 'lucide-react';
 import { useState } from 'react';
+import type { ComponentType } from 'react';
+import { ResponsiveTable, type TableColumn } from '../components/ui/responsive-table';
 
 type Tab = 'timeline' | 'prescriptions' | 'labs' | 'vaccinations';
 
@@ -18,7 +20,7 @@ export function PatientDetailPage() {
   const patLabs = labResults.filter(l => l.patientId === id);
   const patVax = vaccinations.filter(v => v.patientId === id);
 
-  const tabs: { key: Tab; label: string; icon: any; count: number }[] = [
+  const tabs: { key: Tab; label: string; icon: ComponentType<{ className?: string }>; count: number }[] = [
     { key: 'timeline', label: 'Timeline', icon: Clock, count: patEncounters.length },
     { key: 'prescriptions', label: 'Prescriptions', icon: Pill, count: patRx.length },
     { key: 'labs', label: 'Lab Results', icon: FlaskConical, count: patLabs.length },
@@ -60,10 +62,13 @@ export function PatientDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg overflow-x-auto">
         {tabs.map(tb => (
-          <button key={tb.key} onClick={() => setTab(tb.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-[13px] transition-colors ${tab === tb.key ? 'bg-white shadow-sm text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+          <button
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
+            className={`af-tap af-focus inline-flex items-center gap-2 px-4 py-2 rounded-md text-[13px] transition-colors whitespace-nowrap ${tab === tb.key ? 'bg-white shadow-sm text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}
+          >
             <tb.icon className="w-4 h-4" /> {tb.label} <span className="text-[11px] bg-gray-200 px-1.5 py-0.5 rounded-full">{tb.count}</span>
           </button>
         ))}
@@ -133,34 +138,37 @@ export function PatientDetailPage() {
       )}
 
       {tab === 'labs' && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-[12px] text-gray-500 border-b border-gray-100 bg-gray-50">
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Test</th>
-                <th className="px-4 py-3">Result</th>
-                <th className="px-4 py-3">Reference</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Lab</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patLabs.map(lab => (
-                <tr key={lab.id} className="border-b border-gray-50 last:border-0">
-                  <td className="px-4 py-3 text-[13px]">{lab.date}</td>
-                  <td className="px-4 py-3 text-[13px]">{lab.testName}</td>
-                  <td className="px-4 py-3 text-[13px]">{lab.result}</td>
-                  <td className="px-4 py-3 text-[12px] text-gray-500">{lab.referenceRange}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[11px] px-2 py-0.5 rounded-full ${lab.status === 'critical' ? 'bg-red-100 text-red-700' : lab.status === 'abnormal' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{lab.status}</span>
-                  </td>
-                  <td className="px-4 py-3 text-[12px] text-gray-500">{lab.labName}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ResponsiveTable
+          columns={([
+            { key: 'date', header: 'Date', cell: l => l.date },
+            { key: 'test', header: 'Test', cell: l => l.testName },
+            { key: 'result', header: 'Result', cell: l => l.result },
+            { key: 'ref', header: 'Reference', cell: l => l.referenceRange, hideOnMobile: true },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: l => (
+                <span
+                  className={`text-[11px] px-2 py-0.5 rounded-full ${
+                    l.status === 'critical'
+                      ? 'bg-red-100 text-red-700'
+                      : l.status === 'abnormal'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-green-100 text-green-700'
+                  }`}
+                >
+                  {l.status}
+                </span>
+              ),
+            },
+            { key: 'lab', header: 'Lab', cell: l => l.labName, hideOnMobile: true },
+          ] as TableColumn<(typeof patLabs)[number]>[])}
+          rows={patLabs}
+          rowKey={l => l.id}
+          emptyLabel="No lab results"
+          mobileTitle={l => l.testName}
+          mobileSubtitle={l => `${l.date} · ${l.result}`}
+        />
       )}
 
       {tab === 'vaccinations' && (

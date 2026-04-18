@@ -1,14 +1,54 @@
 import { inventory } from '../data/mock-data';
-import { Package, AlertTriangle, Download } from 'lucide-react';
+import { AlertTriangle, Download } from 'lucide-react';
+import { ResponsiveTable, type TableColumn } from '../components/ui/responsive-table';
+
+type InvRow = (typeof inventory)[number];
 
 export function InventoryPage() {
   const sorted = [...inventory].sort((a, b) => (a.quantity <= a.reorderLevel ? -1 : 1) - (b.quantity <= b.reorderLevel ? -1 : 1));
 
+  const columns: TableColumn<InvRow>[] = [
+    { key: 'drug', header: 'Drug', cell: i => <span className="text-[14px]">{i.name}</span> },
+    { key: 'cat', header: 'Category', cell: i => <span className="text-[12px] text-gray-500">{i.category}</span> },
+    {
+      key: 'qty',
+      header: 'Quantity',
+      cell: i => (
+        <span className="text-[14px]">
+          {i.quantity} {i.unit}
+        </span>
+      ),
+    },
+    {
+      key: 'reorder',
+      header: 'Reorder Level',
+      cell: i => (
+        <span className="text-[13px] text-gray-500">
+          {i.reorderLevel} {i.unit}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    { key: 'rx', header: 'Active Rx', cell: i => i.linkedPrescriptions, hideOnMobile: true },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: i =>
+        i.quantity <= i.reorderLevel ? (
+          <span className="inline-flex items-center gap-1 text-[11px] text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+            <AlertTriangle className="w-3 h-3" /> LOW STOCK
+          </span>
+        ) : (
+          <span className="text-[11px] text-green-700 bg-green-100 px-2 py-0.5 rounded-full">In Stock</span>
+        ),
+    },
+  ];
+
   return (
     <div className="max-w-5xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="text-[22px]">Drug Inventory</h1>
-        <button className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-[14px]">
+        <button className="af-tap af-press af-focus inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-[14px]">
           <Download className="w-4 h-4" /> Export Report
         </button>
       </div>
@@ -28,41 +68,14 @@ export function InventoryPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-[12px] text-gray-500 border-b border-gray-100 bg-gray-50">
-              <th className="px-4 py-3">Drug</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Quantity</th>
-              <th className="px-4 py-3">Reorder Level</th>
-              <th className="px-4 py-3">Active Rx</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map(item => {
-              const low = item.quantity <= item.reorderLevel;
-              return (
-                <tr key={item.id} className={`border-b border-gray-50 last:border-0 ${low ? 'bg-red-50/50' : 'hover:bg-gray-50'}`}>
-                  <td className="px-4 py-3 text-[14px]">{item.name}</td>
-                  <td className="px-4 py-3 text-[12px] text-gray-500">{item.category}</td>
-                  <td className="px-4 py-3 text-[14px]">{item.quantity} {item.unit}</td>
-                  <td className="px-4 py-3 text-[13px] text-gray-500">{item.reorderLevel} {item.unit}</td>
-                  <td className="px-4 py-3 text-[13px]">{item.linkedPrescriptions}</td>
-                  <td className="px-4 py-3">
-                    {low ? (
-                      <span className="flex items-center gap-1 text-[11px] text-red-700 bg-red-100 px-2 py-0.5 rounded-full w-fit"><AlertTriangle className="w-3 h-3" /> LOW STOCK</span>
-                    ) : (
-                      <span className="text-[11px] text-green-700 bg-green-100 px-2 py-0.5 rounded-full">In Stock</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <ResponsiveTable
+        columns={columns}
+        rows={sorted}
+        rowKey={i => i.id}
+        emptyLabel="No inventory"
+        mobileTitle={i => i.name}
+        mobileSubtitle={i => `${i.category} · ${i.quantity} ${i.unit}`}
+      />
     </div>
   );
 }
