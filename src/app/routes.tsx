@@ -18,6 +18,8 @@ import { StaffPage } from './pages/StaffPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SmsInboxPage } from './pages/SmsInboxPage';
 import { VideoConsultPage } from './pages/VideoConsultPage';
+import { RemindersPage } from './pages/RemindersPage';
+import { VoiceConsultPage } from './pages/VoiceConsultPage';
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +44,8 @@ export const router = createBrowserRouter([
       { path: 'reports', Component: ReportsPage },
       { path: 'sms-inbox', Component: SmsInboxPage },
       { path: 'video-consult', Component: VideoConsultPage },
+      { path: 'reminders', Component: RemindersPage },
+      { path: 'voice-consult', Component: VoiceConsultPage },
       { path: '*', Component: () => <div className="text-center py-12 text-gray-500">Page not found</div> },
     ],
   },

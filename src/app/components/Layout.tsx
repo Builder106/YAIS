@@ -27,6 +27,8 @@ export function Layout() {
     '/reports': t('nav.reports'),
     '/video-consult': t('nav.videoConsult'),
     '/sms-inbox': t('nav.smsInbox'),
+    '/reminders': t('reminders.title'),
+    '/voice-consult': t('voice.record'),
   };
 
   const pageLabel = routeLabels[location.pathname] || '';

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router';
 import type { ComponentType } from 'react';
 import { clsx } from 'clsx';
-import { Activity, Barcode, CalendarCheck2, FileText, HeartPulse, Hexagon, KeyRound, LogOut, MessageSquare, Pill, Shield, Sparkles, Stethoscope, Syringe, TestTube2, UserCog, Users, Video } from 'lucide-react';
+import { Activity, Barcode, Bell, CalendarCheck2, FileText, HeartPulse, Hexagon, KeyRound, LogOut, MessageSquare, Mic, Pill, Shield, Sparkles, Stethoscope, Syringe, TestTube2, UserCog, Users, Video } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 
@@ -33,9 +33,11 @@ const doctorItems: NavItem[] = [
   { to: '/appointments', labelKey: 'sidebar.queueAppointments', icon: CalendarCheck2 },
   { to: '/records', labelKey: 'sidebar.unifiedTimeline', icon: Activity },
   { to: '/prescriptions', labelKey: 'sidebar.prescriptionWriter', icon: Pill },
+  { to: '/reminders', labelKey: 'reminders.title', icon: Bell },
   { to: '/lab-results', labelKey: 'sidebar.labSignals', icon: TestTube2 },
   { to: '/referrals', labelKey: 'nav.referrals', icon: HeartPulse },
   { to: '/video-consult', labelKey: 'sidebar.videoConsult', icon: Video },
+  { to: '/voice-consult', labelKey: 'voice.record', icon: Mic },
   { to: '/sms-inbox', labelKey: 'sidebar.smsInbox', icon: MessageSquare },
   { to: '/ai-assistant', labelKey: 'sidebar.aiClinicalAssistant', icon: Sparkles },
 ];
@@ -45,6 +47,7 @@ const patientItems: NavItem[] = [
   { to: '/health-id', labelKey: 'sidebar.scannableHealthId', icon: Barcode },
   { to: '/records', labelKey: 'sidebar.medicalHistory', icon: FileText },
   { to: '/prescriptions', labelKey: 'nav.prescriptions', icon: Pill },
+  { to: '/reminders', labelKey: 'reminders.title', icon: Bell },
   { to: '/appointments', labelKey: 'nav.appointments', icon: CalendarCheck2 },
   { to: '/video-consult', labelKey: 'sidebar.videoConsult', icon: Video },
   { to: '/vaccinations', labelKey: 'nav.vaccinations', icon: Syringe },
