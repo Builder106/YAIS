@@ -7,6 +7,8 @@
     "dev": "concurrently -n web,api -c cyan,magenta \"npm:dev:web\" \"npm:dev:api\"",
     "dev:web": "vite",
     "dev:api": "npm --prefix server run dev",
+    "tunnel": "bash scripts/tunnel.sh",
+    "demo": "concurrently -n web,api,tunnel -c cyan,magenta,green \"npm:dev:web\" \"npm:dev:api\" \"npm:tunnel\"",
     "build": "vite build",
     "test": "vitest run",
     "test:all": "npm test && npm --prefix server test"

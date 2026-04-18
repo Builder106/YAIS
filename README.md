@@ -43,6 +43,8 @@ npm run test:all            # both
 
 ## Demo on your phone
 
+See [`docs/DEMO.md`](docs/DEMO.md) for the full 7-feature phone walkthrough (PWA install, voice, video, push reminders, SMS, Health ID QR, offline/low-bandwidth).
+
 Media APIs (camera, microphone, push) require a **secure context**. There are two supported options:
 
 ### Option 1 — Tunnel to your laptop (recommended for dev)
