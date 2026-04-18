@@ -1,0 +1,24 @@
+import 'dotenv/config';
+import { z } from 'zod';
+
+const Schema = z.object({
+  PORT: z.coerce.number().default(3001),
+  DATABASE_URL: z.string().optional(),
+  WEB_PUSH_PUBLIC_KEY: z.string().optional(),
+  WEB_PUSH_PRIVATE_KEY: z.string().optional(),
+  WEB_PUSH_CONTACT: z.string().default('mailto:demo@medcore.local'),
+  OPENAI_API_KEY: z.string().optional(),
+  DAILY_API_KEY: z.string().optional(),
+  DAILY_DOMAIN: z.string().optional(),
+  AT_USERNAME: z.string().default('sandbox'),
+  AT_API_KEY: z.string().optional(),
+  AT_SENDER_ID: z.string().default('MEDCORE'),
+  AUDIO_RETENTION_DAYS: z.coerce.number().default(30),
+  SMS_RESPONSE_TTL_MS: z.coerce.number().default(120000),
+  DEMO_DOCTOR_PIN: z.string().default('4242'),
+  DEMO_DOCTOR_PHONE: z.string().optional(),
+  DEMO_PATIENT_PHONE: z.string().optional(),
+});
+
+export const env = Schema.parse(process.env);
+export type Env = typeof env;

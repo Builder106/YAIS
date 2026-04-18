@@ -1,34 +1,40 @@
 import { Outlet, useLocation } from 'react-router';
 import { Sidebar } from './Sidebar';
-import { useApp, t } from '../context/AppContext';
+import { useApp, SUPPORTED_LANGUAGES } from '../context/AppContext';
+import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Bell, Shield, Activity, Smartphone, Globe2 } from 'lucide-react';
-
-const routeLabels: Record<string, string> = {
-  '/': 'Dashboard',
-  '/health-id': 'Health ID',
-  '/records': 'My Records',
-  '/patients': 'Patients',
-  '/appointments': 'Appointments',
-  '/prescriptions': 'Prescriptions',
-  '/lab-results': 'Lab Results',
-  '/vaccinations': 'Vaccinations',
-  '/consent': 'Consent & Privacy',
-  '/ai-assistant': 'AI Clinical Assistant',
-  '/referrals': 'Referrals',
-  '/audit-log': 'Audit Log',
-  '/inventory': 'Drug Inventory',
-  '/staff': 'Staff Management',
-  '/reports': 'Reports',
-};
 
 export function Layout() {
   const { offlineMode, role, lang, setLang, lowBandwidth, setLowBandwidth, setOfflineMode } = useApp();
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const routeLabels: Record<string, string> = {
+    '/': t('nav.dashboard'),
+    '/health-id': t('nav.healthId'),
+    '/records': t('nav.myRecords'),
+    '/patients': t('nav.patients'),
+    '/appointments': t('nav.appointments'),
+    '/prescriptions': t('nav.prescriptions'),
+    '/lab-results': t('nav.labResults'),
+    '/vaccinations': t('nav.vaccinations'),
+    '/consent': t('nav.consent'),
+    '/ai-assistant': t('nav.aiAssistant'),
+    '/referrals': t('nav.referrals'),
+    '/audit-log': t('nav.auditLog'),
+    '/inventory': t('nav.inventory'),
+    '/staff': t('nav.staff'),
+    '/reports': t('nav.reports'),
+    '/video-consult': t('nav.videoConsult'),
+    '/sms-inbox': t('nav.smsInbox'),
+  };
+
   const pageLabel = routeLabels[location.pathname] || '';
-  const roleLabel = role === 'patient' ? 'Patient Portal' : role === 'doctor' ? 'Clinical Workspace' : 'Facility Admin Command';
+  const roleLabel =
+    role === 'patient' ? t('role.patientPortal') : role === 'doctor' ? t('role.clinicalWorkspace') : t('role.facilityAdmin');
   const roleDot = role === 'patient' ? 'bg-teal-500' : role === 'doctor' ? 'bg-violet-500' : 'bg-amber-500';
   const roleAvatar = role === 'patient' ? 'bg-teal-700' : role === 'doctor' ? 'bg-violet-700' : 'bg-amber-700';
-  const langLabel = lang === 'en' ? 'English' : lang === 'fr' ? 'French' : 'Swahili';
+  const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === lang) ?? SUPPORTED_LANGUAGES[0];
 
   return (
     <div className="flex min-h-screen items-stretch bg-[#F3ECE1]">
@@ -52,28 +58,31 @@ export function Layout() {
                 className={`af-press af-focus hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border ${lowBandwidth ? 'bg-[#E8D6BC] text-[#5C3A2E] border-[#D0B994]' : 'bg-[#F7F1E6] text-[#5B5149] border-[#D9C8AE]'}`}
               >
                 <Smartphone className="w-3 h-3" />
-                Low-bandwidth
+                {t('common.lowBandwidth')}
               </button>
               <button
                 onClick={() => setOfflineMode(!offlineMode)}
                 className={`af-press af-focus flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border ${offlineMode ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}
               >
                 {offlineMode ? <WifiOff className="w-3 h-3" /> : <Wifi className="w-3 h-3" />}
-                {offlineMode ? 'Offline sync' : 'Online sync'}
+                {offlineMode ? t('common.offlineSync') : t('common.onlineSync')}
               </button>
               <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-[#EAF2FF] text-[#3D4C8A] rounded-full text-[11px] border border-[#C4CEE9]">
                 <Globe2 className="w-3 h-3" />
-                {langLabel}
+                <span aria-hidden>{currentLang.flag}</span>
+                <span>{currentLang.nativeName}</span>
               </div>
               <select
-                aria-label="Language selector"
+                aria-label={t('common.language')}
                 value={lang}
-                onChange={e => setLang(e.target.value as 'en' | 'fr' | 'sw')}
+                onChange={e => setLang(e.target.value as typeof lang)}
                 className="af-focus hidden md:block bg-white border border-[#D9C8AE] text-[12px] text-[#5B5149] rounded-lg px-2 py-1"
               >
-                <option value="en">English</option>
-                <option value="fr">French</option>
-                <option value="sw">Swahili</option>
+                {SUPPORTED_LANGUAGES.map(l => (
+                  <option key={l.code} value={l.code}>
+                    {l.flag} {l.nativeName}
+                  </option>
+                ))}
               </select>
               <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-[#F7F1E6] text-[#5B5149] rounded-full text-[11px] border border-[#D9C8AE]">
                 <Smartphone className="w-3 h-3" />
@@ -97,7 +106,7 @@ export function Layout() {
             </div>
           </div>
           <div className="lg:hidden mt-2 text-[11px] text-[#5B5149]">
-            {t('common.offline', lang)} · USSD *123# · {langLabel}
+            {t('common.offline')} · USSD *123# · {currentLang.nativeName}
           </div>
         </header>
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(195,154,61,0.1),_transparent_40%)]">

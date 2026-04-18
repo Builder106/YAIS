@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#214838"/>
+  <path d="M48 96h30l12-24 24 48 12-24h18" stroke="#DAB776" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="96" y="158" text-anchor="middle" fill="#F7F1E6" font-family="system-ui, sans-serif" font-size="22" font-weight="700">MedCore</text>
+</svg>

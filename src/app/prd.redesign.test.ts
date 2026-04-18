@@ -12,9 +12,15 @@ function readProjectFile(relativePath: string) {
 describe('PRD-aligned redesign surfaces', () => {
   it('exposes low-bandwidth, language, and USSD context in app shell', () => {
     const layout = readProjectFile('src/app/components/Layout.tsx');
-    expect(layout).toContain('Low-bandwidth');
+    const i18nSetup = readProjectFile('src/app/i18n.ts');
+    const enResources = readProjectFile('src/locales/en/translation.json');
+    expect(layout).toContain("t('common.lowBandwidth')");
     expect(layout).toContain('USSD *123#');
-    expect(layout).toContain('Swahili');
+    expect(layout).toContain('SUPPORTED_LANGUAGES');
+    expect(i18nSetup).toContain('Swahili');
+    expect(i18nSetup).toContain('العربية');
+    expect(i18nSetup).toContain('Hausa');
+    expect(enResources).toContain('"lowBandwidth"');
   });
 
   it('upgrades doctor dashboard around queue, timeline, referrals, and AI advisory', () => {

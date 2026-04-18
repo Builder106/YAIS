@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18nInstance, { SUPPORTED_LANGUAGES, applyDirection } from '../i18n';
 
 export type UserRole = 'patient' | 'doctor' | 'admin';
-export type Language = 'en' | 'fr' | 'sw';
+export type Language = 'en' | 'fr' | 'ar' | 'sw' | 'ha';
 
 interface AppState {
   role: UserRole;
@@ -14,19 +16,46 @@ interface AppState {
   setOfflineMode: (v: boolean) => void;
   lowBandwidth: boolean;
   setLowBandwidth: (v: boolean) => void;
+  currentUserId: string;
 }
 
 const AppContext = createContext<AppState | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>('doctor');
-  const [lang, setLang] = useState<Language>('en');
+  const [lang, setLangState] = useState<Language>((i18nInstance.language as Language) || 'en');
   const [currentPatientId, setCurrentPatientId] = useState('PAT-001');
   const [offlineMode, setOfflineMode] = useState(false);
   const [lowBandwidth, setLowBandwidth] = useState(false);
 
+  const setLang = (l: Language) => {
+    setLangState(l);
+    i18nInstance.changeLanguage(l);
+    applyDirection(l);
+  };
+
+  useEffect(() => {
+    applyDirection(lang);
+  }, [lang]);
+
+  const currentUserId = role === 'doctor' ? 'DOC-001' : 'PAT-001';
+
   return (
-    <AppContext.Provider value={{ role, setRole, lang, setLang, currentPatientId, setCurrentPatientId, offlineMode, setOfflineMode, lowBandwidth, setLowBandwidth }}>
+    <AppContext.Provider
+      value={{
+        role,
+        setRole,
+        lang,
+        setLang,
+        currentPatientId,
+        setCurrentPatientId,
+        offlineMode,
+        setOfflineMode,
+        lowBandwidth,
+        setLowBandwidth,
+        currentUserId,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
@@ -38,29 +67,36 @@ export function useApp() {
   return ctx;
 }
 
-// i18n
-const translations: Record<string, Record<Language, string>> = {
-  'nav.dashboard': { en: 'Dashboard', fr: 'Tableau de bord', sw: 'Dashibodi' },
-  'nav.patients': { en: 'Patients', fr: 'Patients', sw: 'Wagonjwa' },
-  'nav.appointments': { en: 'Appointments', fr: 'Rendez-vous', sw: 'Miadi' },
-  'nav.prescriptions': { en: 'Prescriptions', fr: 'Ordonnances', sw: 'Dawa' },
-  'nav.labResults': { en: 'Lab Results', fr: 'Résultats de labo', sw: 'Matokeo ya Maabara' },
-  'nav.vaccinations': { en: 'Vaccinations', fr: 'Vaccinations', sw: 'Chanjo' },
-  'nav.referrals': { en: 'Referrals', fr: 'Références', sw: 'Rufaa' },
-  'nav.inventory': { en: 'Inventory', fr: 'Inventaire', sw: 'Hesabu ya Vifaa' },
-  'nav.staff': { en: 'Staff', fr: 'Personnel', sw: 'Wafanyakazi' },
-  'nav.reports': { en: 'Reports', fr: 'Rapports', sw: 'Ripoti' },
-  'nav.aiAssistant': { en: 'AI Assistant', fr: 'Assistant IA', sw: 'Msaidizi wa AI' },
-  'nav.consent': { en: 'Consent & Privacy', fr: 'Consentement', sw: 'Idhini' },
-  'nav.auditLog': { en: 'Audit Log', fr: 'Journal d\'audit', sw: 'Kumbukumbu' },
-  'nav.myRecords': { en: 'My Records', fr: 'Mes dossiers', sw: 'Rekodi Zangu' },
-  'nav.healthId': { en: 'Health ID', fr: 'ID Santé', sw: 'Kitambulisho cha Afya' },
-  'nav.settings': { en: 'Settings', fr: 'Paramètres', sw: 'Mipangilio' },
-  'common.search': { en: 'Search', fr: 'Rechercher', sw: 'Tafuta' },
-  'common.offline': { en: 'Offline Mode', fr: 'Mode hors ligne', sw: 'Nje ya mtandao' },
-  'common.online': { en: 'Online', fr: 'En ligne', sw: 'Mtandaoni' },
+const legacyMap: Record<string, string> = {
+  'nav.dashboard': 'nav.dashboard',
+  'nav.patients': 'nav.patients',
+  'nav.appointments': 'nav.appointments',
+  'nav.prescriptions': 'nav.prescriptions',
+  'nav.labResults': 'nav.labResults',
+  'nav.vaccinations': 'nav.vaccinations',
+  'nav.referrals': 'nav.referrals',
+  'nav.inventory': 'nav.inventory',
+  'nav.staff': 'nav.staff',
+  'nav.reports': 'nav.reports',
+  'nav.aiAssistant': 'nav.aiAssistant',
+  'nav.consent': 'nav.consent',
+  'nav.auditLog': 'nav.auditLog',
+  'nav.myRecords': 'nav.myRecords',
+  'nav.healthId': 'nav.healthId',
+  'nav.settings': 'nav.settings',
+  'common.search': 'common.search',
+  'common.offline': 'common.offline',
+  'common.online': 'common.online',
 };
 
 export function t(key: string, lang: Language): string {
-  return translations[key]?.[lang] ?? key;
+  const mapped = legacyMap[key] ?? key;
+  const value = i18nInstance.getResource(lang, 'translation', mapped);
+  if (typeof value === 'string') return value;
+  return i18nInstance.t(mapped, { lng: lang }) ?? key;
+}
+
+export { SUPPORTED_LANGUAGES };
+export function useT() {
+  return useTranslation();
 }

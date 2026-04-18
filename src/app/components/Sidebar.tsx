@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router';
 import type { ComponentType } from 'react';
 import { clsx } from 'clsx';
-import { Activity, Barcode, CalendarCheck2, FileText, HeartPulse, Hexagon, KeyRound, LogOut, Pill, Shield, Sparkles, Stethoscope, Syringe, TestTube2, UserCog, Users } from 'lucide-react';
+import { Activity, Barcode, CalendarCheck2, FileText, HeartPulse, Hexagon, KeyRound, LogOut, MessageSquare, Pill, Shield, Sparkles, Stethoscope, Syringe, TestTube2, UserCog, Users, Video } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 
 function SidePattern() {
@@ -22,43 +23,49 @@ function SidePattern() {
 
 type NavItem = {
   to: string;
-  label: string;
+  labelKey: string;
   icon: ComponentType<{ className?: string }>;
 };
 
 const doctorItems: NavItem[] = [
-  { to: '/', label: 'Clinical Hub', icon: Stethoscope },
-  { to: '/patients', label: 'Patient Search', icon: Users },
-  { to: '/appointments', label: 'Queue & Appointments', icon: CalendarCheck2 },
-  { to: '/records', label: 'Unified Timeline', icon: Activity },
-  { to: '/prescriptions', label: 'Prescription Writer', icon: Pill },
-  { to: '/lab-results', label: 'Lab Signals', icon: TestTube2 },
-  { to: '/referrals', label: 'Referrals', icon: HeartPulse },
-  { to: '/ai-assistant', label: 'AI Clinical Assistant', icon: Sparkles },
+  { to: '/', labelKey: 'sidebar.clinicalHub', icon: Stethoscope },
+  { to: '/patients', labelKey: 'sidebar.patientSearch', icon: Users },
+  { to: '/appointments', labelKey: 'sidebar.queueAppointments', icon: CalendarCheck2 },
+  { to: '/records', labelKey: 'sidebar.unifiedTimeline', icon: Activity },
+  { to: '/prescriptions', labelKey: 'sidebar.prescriptionWriter', icon: Pill },
+  { to: '/lab-results', labelKey: 'sidebar.labSignals', icon: TestTube2 },
+  { to: '/referrals', labelKey: 'nav.referrals', icon: HeartPulse },
+  { to: '/video-consult', labelKey: 'sidebar.videoConsult', icon: Video },
+  { to: '/sms-inbox', labelKey: 'sidebar.smsInbox', icon: MessageSquare },
+  { to: '/ai-assistant', labelKey: 'sidebar.aiClinicalAssistant', icon: Sparkles },
 ];
 
 const patientItems: NavItem[] = [
-  { to: '/', label: 'My Health Hub', icon: HeartPulse },
-  { to: '/health-id', label: 'Scannable Health ID', icon: Barcode },
-  { to: '/records', label: 'Medical History', icon: FileText },
-  { to: '/appointments', label: 'Appointments', icon: CalendarCheck2 },
-  { to: '/vaccinations', label: 'Vaccinations', icon: Syringe },
-  { to: '/consent', label: 'Consent & Privacy', icon: KeyRound },
-  { to: '/audit-log', label: 'Record Access Log', icon: Shield },
+  { to: '/', labelKey: 'sidebar.myHealthHub', icon: HeartPulse },
+  { to: '/health-id', labelKey: 'sidebar.scannableHealthId', icon: Barcode },
+  { to: '/records', labelKey: 'sidebar.medicalHistory', icon: FileText },
+  { to: '/prescriptions', labelKey: 'nav.prescriptions', icon: Pill },
+  { to: '/appointments', labelKey: 'nav.appointments', icon: CalendarCheck2 },
+  { to: '/video-consult', labelKey: 'sidebar.videoConsult', icon: Video },
+  { to: '/vaccinations', labelKey: 'nav.vaccinations', icon: Syringe },
+  { to: '/consent', labelKey: 'nav.consent', icon: KeyRound },
+  { to: '/audit-log', labelKey: 'sidebar.recordAccessLog', icon: Shield },
 ];
 
 const adminItems: NavItem[] = [
-  { to: '/', label: 'Facility Command', icon: UserCog },
-  { to: '/staff', label: 'Staff Management', icon: Users },
-  { to: '/inventory', label: 'Drug Inventory', icon: Pill },
-  { to: '/reports', label: 'Ministry Reports', icon: FileText },
-  { to: '/audit-log', label: 'Security Audit', icon: Shield },
-  { to: '/lab-results', label: 'Lab Integrations', icon: TestTube2 },
+  { to: '/', labelKey: 'sidebar.facilityCommand', icon: UserCog },
+  { to: '/staff', labelKey: 'sidebar.staffManagement', icon: Users },
+  { to: '/inventory', labelKey: 'sidebar.drugInventory', icon: Pill },
+  { to: '/reports', labelKey: 'sidebar.ministryReports', icon: FileText },
+  { to: '/sms-inbox', labelKey: 'sidebar.smsInbox', icon: MessageSquare },
+  { to: '/audit-log', labelKey: 'sidebar.securityAudit', icon: Shield },
+  { to: '/lab-results', labelKey: 'sidebar.labIntegrations', icon: TestTube2 },
 ];
 
 export function Sidebar() {
   const { role } = useApp();
-  const roleTitle = role === 'doctor' ? 'Doctor Workspace' : role === 'patient' ? 'Patient Portal' : 'Facility Admin';
+  const { t } = useTranslation();
+  const roleTitle = role === 'doctor' ? t('sidebar.doctorWorkspace') : role === 'patient' ? t('sidebar.patientPortal') : t('sidebar.facilityAdmin');
   const navItems = role === 'doctor' ? doctorItems : role === 'patient' ? patientItems : adminItems;
 
   return (
@@ -77,7 +84,7 @@ export function Sidebar() {
       </div>
       <div className="relative z-10 px-6 pb-4">
         <div className="rounded-2xl border border-[#3A6A54] bg-[#1B3D30]/75 px-3 py-2 text-[12px] text-[#EFDDBA]">
-          Offline-first care stack with FHIR-aligned records
+          {t('sidebar.offlineTagline')}
         </div>
       </div>
       <nav className="relative z-10 flex-1 px-4 pb-6 overflow-y-auto">
@@ -99,7 +106,7 @@ export function Sidebar() {
               {({ isActive }) => (
                 <>
                   <item.icon className={clsx('w-4.5 h-4.5', isActive ? 'text-[#DAB776]' : 'text-[#F7F1E6]/75')} />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </>
               )}
             </NavLink>
@@ -109,7 +116,7 @@ export function Sidebar() {
       <div className="relative z-10 p-4 border-t border-[#315D4A]">
         <button className="af-elevate af-press af-focus w-full flex items-center gap-3 px-4 py-3 text-[14px] text-[#F7F1E6]/80 hover:bg-[#F7F1E6]/8 hover:text-[#F7F1E6] rounded-2xl transition-colors">
           <LogOut className="w-4.5 h-4.5" />
-          Sign Out
+          {t('sidebar.signOut')}
         </button>
       </div>
     </aside>

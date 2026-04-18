@@ -1,0 +1,23 @@
+{
+  "name": "MedCore",
+  "short_name": "MedCore",
+  "description": "Centralised digital health records for African healthcare.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3ECE1",
+  "theme_color": "#214838",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
