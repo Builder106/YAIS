@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { patients } from '../data/mock-data';
 import { useApp } from '../context/AppContext';
 import { Download, Share2, Shield, Fingerprint } from 'lucide-react';
+import { isLikelyUnreachableForQrScan, resolvePublicOrigin } from '../lib/publicOrigin';
 
 export function healthIdChartUrl(patientId: string, origin: string) {
   const path = `/patients/${encodeURIComponent(patientId)}?from=health-id`;
@@ -16,16 +17,28 @@ export function healthIdChartUrl(patientId: string, origin: string) {
 export function HealthIdPage() {
   const { currentPatientId } = useApp();
   const patient = patients.find(p => p.id === currentPatientId)!;
-  const chartUrl = useMemo(
-    () => healthIdChartUrl(patient.id, typeof window !== 'undefined' ? window.location.origin : ''),
-    [patient.id],
+  const publicOrigin = useMemo(
+    () =>
+      resolvePublicOrigin(
+        import.meta.env.VITE_PUBLIC_APP_ORIGIN as string | undefined,
+        typeof window !== 'undefined' ? window.location.origin : '',
+      ),
+    [],
   );
+  const chartUrl = useMemo(() => healthIdChartUrl(patient.id, publicOrigin), [patient.id, publicOrigin]);
+  const qrWarn = typeof window !== 'undefined' && isLikelyUnreachableForQrScan(publicOrigin);
 
   return (
     <div className="max-w-md mx-auto space-y-5">
       <div className="text-center">
         <h1 className="text-[22px] text-slate-900">Your Health ID</h1>
         <p className="text-[13px] text-slate-400 mt-1">Scannable at any MedCore-enabled facility</p>
+        {qrWarn && (
+          <p className="text-left mt-3 mx-auto max-w-sm rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-950">
+            Other phones cannot open localhost or LAN URLs. Open the app via your tunnel URL, or set <code className="font-mono text-[10px]">VITE_PUBLIC_APP_ORIGIN</code> to that URL and rebuild—the QR encodes that origin.
+          </p>
+        )}
+        <p className="text-[10px] text-slate-400 mt-2 font-mono break-all max-w-sm mx-auto">{chartUrl}</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">

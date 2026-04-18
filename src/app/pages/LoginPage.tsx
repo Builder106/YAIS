@@ -8,7 +8,12 @@ export function LoginPage() {
   const { t } = useTranslation();
   const { sessionLoading, sessionUser, login } = useApp();
   const location = useLocation();
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
+  const returnTo = (() => {
+    const st = location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null;
+    const f = st?.from;
+    if (!f?.pathname) return '/';
+    return `${f.pathname}${f.search ?? ''}${f.hash ?? ''}`;
+  })();
 
   const [userId, setUserId] = useState('');
   const [pin, setPin] = useState('');
@@ -16,7 +21,7 @@ export function LoginPage() {
   const [pending, setPending] = useState(false);
 
   if (!sessionLoading && sessionUser) {
-    return <Navigate to={from} replace />;
+    return <Navigate to={returnTo} replace />;
   }
 
   async function onSubmit(e: FormEvent) {
