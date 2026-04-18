@@ -74,7 +74,7 @@ Everything you leave blank runs against the built-in mock. Restart `npm run demo
 - **Laptop = Doctor** (Clinical Workspace) — projected on screen so audience can see.
 - **Phone = Patient** (Patient Portal) — held in your hand, also mirrored if possible.
 
-Toggle roles using the selector in the top-right header on each device. The role (and language, and current patient ID) persists across reloads, so once you set "Patient" on the phone it stays that way through PWA launches.
+Use **separate sign-ins** on each device (or **Sign out** and log in as the other demo user on one device): e.g. **Doctor** `DOC-001` / `4242` on the laptop, **Patient** `PAT-001` / `1212` on the phone. Language and current patient ID still persist in local storage per browser profile.
 
 ### The 5-minute narrative
 
@@ -84,12 +84,12 @@ Toggle roles using the selector in the top-right header on each device. The role
    → Shows F5 delivery + PWA install.
 3. **[Laptop / Doctor]** Refresh the patient's adherence view. The tap you just did on the phone is already logged.
    → Closes the loop; this is the "wow".
-4. **[Phone / Patient]** Switch to **Health ID** page, show the QR.
+4. **[Phone / Patient]** Open **Health ID** (patient is already signed in), show the QR.
 5. **[Laptop / Doctor]** Use the doctor's scan flow (or just point the laptop camera at the phone) to pull up the same patient.
    → Shows F8 portable identity.
-6. **[Laptop / Doctor]** Switch role to Doctor → **Voice Consult**. Record 20 seconds: *"Patient reports headache, BP 140/90, assessment hypertension, plan amlodipine 5mg."* → SOAP note fills in.
-   → Shows F2, and proves the doctor-on-phone story too, even though you're doing it on the laptop.
-7. **[Both]** Start a **video consult**; show the phone joining.
+6. **[Laptop / Doctor]** **Voice Consult**. Record ~20 seconds, e.g. *"Patient reports headache, BP 140/90, assessment hypertension, plan amlodipine 5mg."* → SOAP note fills in.
+   → Shows F2 (dictation + structured note on the **chart** — there is no separate “send recording to patient’s phone” in the MVP; the patient does **not** get a voice message or push from this flow).
+7. **[Both]** **Video consult** — see §3: doctor and patient must use the **same room URL** (copy from the doctor’s in-call panel); see Jitsi notes below.
    → F3.
 
 Audience walks away with **"oh, it's one system for both sides."**
@@ -102,7 +102,7 @@ The rest of this document is reference material for each feature — what to sho
 
 Below the `lg` breakpoint (under 1024px, i.e. phones and most tablets):
 
-- **Hamburger** (top-left of the header) opens a full off-canvas drawer with every route for the active role, plus the language picker, role switcher, low-bandwidth toggle, offline-sync toggle, and USSD/AES/FHIR compliance badges.
+- **Hamburger** (top-left of the header) opens a full off-canvas drawer with every route for the active role, plus the language picker, **Sign out**, low-bandwidth toggle, offline-sync toggle, and USSD/AES/FHIR compliance badges.
 - **Bottom tab bar** keeps the 4 most-used routes for the active role one tap away, with a fifth **More** tab that re-opens the drawer.
   - Patient: Home, Reminders, Health ID, Video, More
   - Doctor: Home, Patients, Prescriptions, Voice, More
@@ -148,7 +148,7 @@ Doctors in African clinics often consult bedside with a phone, not a laptop. The
 
 ### Show it
 
-1. Log in as **Doctor** (role toggle).
+1. Log in as **Doctor** (`DOC-001`).
 2. Navigate to **Voice Consult** — on phone it's the **Mic** tab in the bottom bar (Doctor role); on desktop it's in the sidebar.
 3. Check the consent checkbox ("I agree to the recording") — mention audio retention is 30 days and auto-purged (`purgeExpiredAudio` in `server/src/routes/voice.ts`).
 4. Tap **Record** — allow mic when iOS prompts.
@@ -159,6 +159,10 @@ Doctors in African clinics often consult bedside with a phone, not a laptop. The
 6. Tap **Stop** → tap **Generate consultation note**.
 7. The SOAP fields populate. Edit inline if you want, then **Save**.
 8. Show the past-recordings list at the bottom with the embedded audio player.
+
+### Does the doctor “send” this to the patient?
+
+**Not in this MVP.** The flow is **clinical documentation**: audio and transcript are stored against the patient’s chart, and the SOAP note saves into the same record. There is **no** separate action to push the recording, transcript, or note to the patient’s phone (no SMS, no patient-app notification from this screen). That would be a future product feature (e.g. secure link or portal message).
 
 ### Talking point
 
@@ -180,11 +184,16 @@ A video consult viewed on a laptop is meaningless — telemedicine is about a pa
 
 ### Show it
 
+**Important (how rooms work in this build):** Each tap on **Start call** creates a **new** session and thus a **new** room URL (`meet.jit.si/...` when Daily isn’t configured). Two devices both pressing **Start** end up in **different** rooms unless you align them manually.
+
 Option A — **Two-device demo (best)**:
 
-1. On the **laptop**, log in as Doctor → Video Consult → Start call. Browser iframe opens in a Daily.co or Jitsi room.
-2. On the **phone**, log in as Patient (same role toggle) → Video Consult → Start call → same room automatically.
-3. Put phone and laptop side by side — the patient sees the doctor, the doctor sees the patient.
+1. On the **laptop**, log in as **Doctor** → **Video Consult** → **Start call**. Wait until the Jitsi/Daily iframe loads.
+2. Copy the **Room URL (demo)** shown under the in-call panel (same URL as the iframe `src`).
+3. On the **phone**, **open that exact URL** in Safari or Chrome (you can AirDrop or QR the string). Do **not** rely on tapping **Start call** again on the phone unless you want a second, empty room.
+4. Put devices side by side — both participants are now in **one** room.
+
+**Jitsi (`meet.jit.si`) behavior:** On the public server, some rooms effectively treat the **first person in** as the meeting owner / moderator for admit flows. If one side gets stuck on a **lobby** or **“Waiting for the moderator”** screen, have the **doctor join first**, then the patient opens the same link. If it still fails, try both sides in the same browser family or refresh. **Daily.co** (with `DAILY_API_KEY` + domain) avoids most of this and is the smoother path for a polished demo.
 
 Option B — **Phone-only walkthrough**:
 
