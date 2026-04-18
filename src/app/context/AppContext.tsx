@@ -21,17 +21,75 @@ interface AppState {
 
 const AppContext = createContext<AppState | null>(null);
 
+export const PREFS_STORAGE_KEY = 'medcore.prefs.v1';
+const VALID_ROLES: UserRole[] = ['patient', 'doctor', 'admin'];
+const VALID_LANGS: Language[] = ['en', 'fr', 'ar', 'sw', 'ha'];
+
+export interface PersistedPrefs {
+  role?: UserRole;
+  lang?: Language;
+  currentPatientId?: string;
+}
+
+export function loadPrefs(): PersistedPrefs {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(PREFS_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as PersistedPrefs;
+    const out: PersistedPrefs = {};
+    if (parsed.role && VALID_ROLES.includes(parsed.role)) out.role = parsed.role;
+    if (parsed.lang && VALID_LANGS.includes(parsed.lang)) out.lang = parsed.lang;
+    if (typeof parsed.currentPatientId === 'string' && parsed.currentPatientId.length > 0) {
+      out.currentPatientId = parsed.currentPatientId;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export function savePrefs(prefs: PersistedPrefs) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(prefs));
+  } catch {
+    /* quota or private mode — ignore */
+  }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<UserRole>('doctor');
-  const [lang, setLangState] = useState<Language>((i18nInstance.language as Language) || 'en');
-  const [currentPatientId, setCurrentPatientId] = useState('PAT-001');
+  const initial = loadPrefs();
+  const initialLang: Language = initial.lang ?? ((i18nInstance.language as Language) || 'en');
+
+  const [role, setRoleState] = useState<UserRole>(initial.role ?? 'doctor');
+  const [lang, setLangState] = useState<Language>(initialLang);
+  const [currentPatientId, setCurrentPatientIdState] = useState(initial.currentPatientId ?? 'PAT-001');
   const [offlineMode, setOfflineMode] = useState(false);
   const [lowBandwidth, setLowBandwidth] = useState(false);
+
+  useEffect(() => {
+    if (initial.lang && i18nInstance.language !== initial.lang) {
+      i18nInstance.changeLanguage(initial.lang);
+    }
+    applyDirection(initialLang);
+  }, []);
+
+  const setRole = (r: UserRole) => {
+    setRoleState(r);
+    savePrefs({ role: r, lang, currentPatientId });
+  };
 
   const setLang = (l: Language) => {
     setLangState(l);
     i18nInstance.changeLanguage(l);
     applyDirection(l);
+    savePrefs({ role, lang: l, currentPatientId });
+  };
+
+  const setCurrentPatientId = (id: string) => {
+    setCurrentPatientIdState(id);
+    savePrefs({ role, lang, currentPatientId: id });
   };
 
   useEffect(() => {

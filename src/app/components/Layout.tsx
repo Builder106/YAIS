@@ -1,11 +1,12 @@
 import { Outlet, useLocation } from 'react-router';
 import { Sidebar } from './Sidebar';
 import { useApp, SUPPORTED_LANGUAGES } from '../context/AppContext';
+import type { UserRole } from '../context/AppContext';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Bell, Shield, Activity, Smartphone, Globe2 } from 'lucide-react';
+import { Wifi, WifiOff, Bell, Shield, Activity, Smartphone, Globe2, UserCog } from 'lucide-react';
 
 export function Layout() {
-  const { offlineMode, role, lang, setLang, lowBandwidth, setLowBandwidth, setOfflineMode } = useApp();
+  const { offlineMode, role, setRole, lang, setLang, lowBandwidth, setLowBandwidth, setOfflineMode } = useApp();
   const { t } = useTranslation();
   const location = useLocation();
 
@@ -86,6 +87,20 @@ export function Layout() {
                   </option>
                 ))}
               </select>
+              <label className="af-focus flex items-center gap-1 bg-white border border-[#D9C8AE] text-[12px] text-[#5B5149] rounded-lg px-2 py-1">
+                <UserCog className="w-3.5 h-3.5" aria-hidden />
+                <span className="sr-only">Role</span>
+                <select
+                  aria-label="Switch role"
+                  value={role}
+                  onChange={e => setRole(e.target.value as UserRole)}
+                  className="bg-transparent outline-none"
+                >
+                  <option value="doctor">{t('role.clinicalWorkspace')}</option>
+                  <option value="patient">{t('role.patientPortal')}</option>
+                  <option value="admin">{t('role.facilityAdmin')}</option>
+                </select>
+              </label>
               <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-[#F7F1E6] text-[#5B5149] rounded-full text-[11px] border border-[#D9C8AE]">
                 <Smartphone className="w-3 h-3" />
                 USSD *123#
