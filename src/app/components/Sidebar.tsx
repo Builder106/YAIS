@@ -9,12 +9,12 @@ function SidePattern() {
     <div className="absolute inset-0 pointer-events-none opacity-20">
       <svg width="100%" height="100%">
         <defs>
-          <pattern id="afyalink-side-grid" width="56" height="56" patternUnits="userSpaceOnUse">
+          <pattern id="medcore-side-grid" width="56" height="56" patternUnits="userSpaceOnUse">
             <path d="M0 28 L28 0 L56 28 L28 56 Z" fill="none" stroke="rgba(195,154,61,0.24)" strokeWidth="1.2" />
             <path d="M0 12 H56 M0 44 H56 M12 0 V56 M44 0 V56" stroke="rgba(247,241,230,0.06)" strokeWidth="1" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#afyalink-side-grid)" />
+        <rect width="100%" height="100%" fill="url(#medcore-side-grid)" />
       </svg>
     </div>
   );
@@ -70,7 +70,7 @@ export function Sidebar() {
             <Hexagon className="w-6 h-6 fill-current" />
           </div>
           <div>
-            <h1 className="text-[28px] leading-none tracking-tight text-[#F7F1E6]">AfyaLink</h1>
+            <h1 className="text-[28px] leading-none tracking-tight text-[#F7F1E6]">MedCore</h1>
             <p className="text-[11px] mt-1 uppercase tracking-[0.2em] text-[#DAB776]">{roleTitle}</p>
           </div>
         </div>

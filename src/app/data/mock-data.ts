@@ -1,5 +1,5 @@
 // ============================================================
-// AfyaLink — Centralised Digital Health Records Platform
+// MedCore — Centralised Digital Health Records Platform
 // Mock Data Layer (simulates PostgreSQL + FHIR R4 store)
 // ============================================================
 

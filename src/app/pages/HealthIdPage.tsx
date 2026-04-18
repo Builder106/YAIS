@@ -12,7 +12,7 @@ export function HealthIdPage() {
     <div className="max-w-md mx-auto space-y-5">
       <div className="text-center">
         <h1 className="text-[22px] text-slate-900">Your Health ID</h1>
-        <p className="text-[13px] text-slate-400 mt-1">Scannable at any AfyaLink-enabled facility</p>
+        <p className="text-[13px] text-slate-400 mt-1">Scannable at any MedCore-enabled facility</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
