@@ -4,7 +4,6 @@ import { cleanup } from '@testing-library/react';
 
 afterEach(() => {
   cleanup();
-  vi.unstubAllGlobals();
   if (typeof localStorage !== 'undefined') {
     try { localStorage.clear(); } catch { /* noop */ }
   }

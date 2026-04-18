@@ -41,6 +41,18 @@
     "clinicalWorkspace": "Clinical Workspace",
     "facilityAdmin": "Facility Admin Command"
   },
+  "auth": {
+    "subtitle": "Demo workspace",
+    "body": "Sign in with your MedCore user ID and PIN.",
+    "userId": "User ID",
+    "pin": "PIN",
+    "submit": "Sign in",
+    "signOut": "Sign out",
+    "checkingSession": "Loading…",
+    "errorInvalid": "Invalid user ID or PIN.",
+    "errorLocked": "Account temporarily locked after too many attempts.",
+    "demoHint": "Demo accounts: Doctor DOC-001 / PIN 4242 · Patient PAT-001 / PIN 1212 · Admin ADM-001 / PIN 3434."
+  },
   "sidebar": {
     "doctorWorkspace": "Doctor Workspace",
     "patientPortal": "Patient Portal",

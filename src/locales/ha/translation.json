@@ -41,6 +41,18 @@
     "clinicalWorkspace": "Wurin Aikin Likita",
     "facilityAdmin": "Umurnin Wurin"
   },
+  "auth": {
+    "subtitle": "Yanayin demo",
+    "body": "Shiga da ID MedCore da PIN.",
+    "userId": "ID mai amfani",
+    "pin": "PIN",
+    "submit": "Shiga",
+    "signOut": "Fita",
+    "checkingSession": "Ana lodawa…",
+    "errorInvalid": "ID ko PIN mara daidai.",
+    "errorLocked": "An kulle asusu na wucin-gadi.",
+    "demoHint": "Demo: Likita DOC-001 / 4242 · Maraƙi PAT-001 / 1212 · Jagora ADM-001 / 3434."
+  },
   "sidebar": {
     "doctorWorkspace": "Wurin Likita",
     "patientPortal": "Portal na Marasa Lafiya",

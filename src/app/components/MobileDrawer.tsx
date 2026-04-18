@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router';
 import { clsx } from 'clsx';
-import { Hexagon, LogOut, Smartphone, Shield, Activity, Wifi, WifiOff, UserCog, X } from 'lucide-react';
+import { Hexagon, LogOut, Smartphone, Shield, Activity, Wifi, WifiOff, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApp, SUPPORTED_LANGUAGES } from '../context/AppContext';
-import type { UserRole } from '../context/AppContext';
 import { doctorItems, patientItems, adminItems } from './Sidebar';
 
 interface MobileDrawerProps {
@@ -13,7 +12,7 @@ interface MobileDrawerProps {
 }
 
 export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
-  const { role, setRole, lang, setLang, offlineMode, setOfflineMode, lowBandwidth, setLowBandwidth } = useApp();
+  const { role, lang, setLang, offlineMode, setOfflineMode, lowBandwidth, setLowBandwidth, sessionUser, signOut } = useApp();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -117,23 +116,9 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         </nav>
 
         <div className="border-t border-[#315D4A] px-5 py-4 space-y-3 text-[#F7F1E6]/90">
-          <div className="flex items-center gap-2">
-            <UserCog className="w-4 h-4 text-[#DAB776]" aria-hidden />
-            <label htmlFor="drawer-role" className="text-[11px] uppercase tracking-[0.14em] text-[#DAB776]">
-              Switch role
-            </label>
-          </div>
-          <select
-            id="drawer-role"
-            aria-label="Switch role"
-            value={role}
-            onChange={e => setRole(e.target.value as UserRole)}
-            className="af-tap af-focus w-full rounded-xl border border-[#3A6A54] bg-[#1B3D30] px-3 py-2 text-[14px] text-[#F7F1E6]"
-          >
-            <option value="doctor">{t('role.clinicalWorkspace')}</option>
-            <option value="patient">{t('role.patientPortal')}</option>
-            <option value="admin">{t('role.facilityAdmin')}</option>
-          </select>
+          <p className="text-[13px] font-medium text-[#F7F1E6] truncate" title={sessionUser?.name}>
+            {sessionUser?.name}
+          </p>
 
           <label htmlFor="drawer-lang" className="block text-[11px] uppercase tracking-[0.14em] text-[#DAB776]">
             {t('common.language')}
@@ -195,10 +180,14 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
 
           <button
             type="button"
+            onClick={() => {
+              onClose();
+              void signOut();
+            }}
             className="af-tap af-press af-focus mt-2 flex w-full items-center gap-3 rounded-2xl border border-[#3A6A54] bg-[#1B3D30]/80 px-4 py-3 text-[14px] text-[#F7F1E6]/90 hover:bg-white/5"
           >
             <LogOut className="w-4 h-4" />
-            {t('sidebar.signOut')}
+            {t('auth.signOut')}
           </button>
         </div>
       </aside>

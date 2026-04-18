@@ -4,12 +4,11 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { MobileDrawer } from './MobileDrawer';
 import { useApp, SUPPORTED_LANGUAGES } from '../context/AppContext';
-import type { UserRole } from '../context/AppContext';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Bell, Shield, Activity, Smartphone, Globe2, UserCog, Menu, Hexagon } from 'lucide-react';
+import { Wifi, WifiOff, Bell, Shield, Activity, Smartphone, Globe2, Menu, Hexagon, LogOut } from 'lucide-react';
 
 export function Layout() {
-  const { offlineMode, role, setRole, lang, setLang, lowBandwidth, setLowBandwidth, setOfflineMode } = useApp();
+  const { offlineMode, role, lang, setLang, lowBandwidth, setLowBandwidth, setOfflineMode, sessionUser, signOut } = useApp();
   const { t } = useTranslation();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -121,20 +120,20 @@ export function Layout() {
                   </option>
                 ))}
               </select>
-              <label className="af-focus hidden lg:flex items-center gap-1 bg-white border border-[#D9C8AE] text-[12px] text-[#5B5149] rounded-lg px-2 py-1">
-                <UserCog className="w-3.5 h-3.5" aria-hidden />
-                <span className="sr-only">Role</span>
-                <select
-                  aria-label="Switch role"
-                  value={role}
-                  onChange={e => setRole(e.target.value as UserRole)}
-                  className="bg-transparent outline-none"
-                >
-                  <option value="doctor">{t('role.clinicalWorkspace')}</option>
-                  <option value="patient">{t('role.patientPortal')}</option>
-                  <option value="admin">{t('role.facilityAdmin')}</option>
-                </select>
-              </label>
+              <span
+                className="hidden lg:inline max-w-[140px] truncate text-[12px] text-[#5B5149] border border-transparent px-1"
+                title={sessionUser?.name}
+              >
+                {sessionUser?.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="af-press af-focus hidden lg:inline-flex items-center gap-1.5 rounded-lg border border-[#D9C8AE] bg-white px-2.5 py-1 text-[12px] text-[#5B5149] hover:bg-[#EFE4D1]"
+              >
+                <LogOut className="w-3.5 h-3.5" aria-hidden />
+                {t('auth.signOut')}
+              </button>
               <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 bg-[#F7F1E6] text-[#5B5149] rounded-full text-[11px] border border-[#D9C8AE]">
                 <Smartphone className="w-3 h-3" />
                 USSD *123#

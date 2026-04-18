@@ -41,6 +41,18 @@
     "clinicalWorkspace": "Eneo la Kliniki",
     "facilityAdmin": "Amri ya Kituo"
   },
+  "auth": {
+    "subtitle": "Mazingira ya demo",
+    "body": "Ingia kwa kitambulisho cha MedCore na PIN.",
+    "userId": "Kitambulisho cha mtumiaji",
+    "pin": "PIN",
+    "submit": "Ingia",
+    "signOut": "Toka",
+    "checkingSession": "Inapakia…",
+    "errorInvalid": "Kitambulisho au PIN si sahihi.",
+    "errorLocked": "Akaunti imefungwa kwa muda.",
+    "demoHint": "Demo: Daktari DOC-001 / 4242 · Mgonjwa PAT-001 / 1212 · Msimamizi ADM-001 / 3434."
+  },
   "sidebar": {
     "doctorWorkspace": "Eneo la Daktari",
     "patientPortal": "Mlango wa Mgonjwa",

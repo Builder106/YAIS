@@ -41,6 +41,18 @@
     "clinicalWorkspace": "Espace clinique",
     "facilityAdmin": "Commande administrative"
   },
+  "auth": {
+    "subtitle": "Espace démo",
+    "body": "Connectez-vous avec votre ID utilisateur MedCore et votre PIN.",
+    "userId": "ID utilisateur",
+    "pin": "PIN",
+    "submit": "Connexion",
+    "signOut": "Déconnexion",
+    "checkingSession": "Chargement…",
+    "errorInvalid": "ID ou PIN incorrect.",
+    "errorLocked": "Compte temporairement verrouillé.",
+    "demoHint": "Démo : Médecin DOC-001 / 4242 · Patient PAT-001 / 1212 · Admin ADM-001 / 3434."
+  },
   "sidebar": {
     "doctorWorkspace": "Espace médecin",
     "patientPortal": "Portail patient",

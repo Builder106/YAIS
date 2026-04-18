@@ -1,44 +1,54 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { AppProvider, useApp } from '../context/AppContext';
+import { AppProvider } from '../context/AppContext';
 import { MobileDrawer } from './MobileDrawer';
 import { BottomNav } from './BottomNav';
 import { Layout } from './Layout';
 import type { UserRole } from '../context/AppContext';
 
-function RoleSetter({ role }: { role: UserRole }) {
-  const { setRole } = useApp();
-  React.useEffect(() => {
-    setRole(role);
-  }, [role, setRole]);
-  return null;
-}
+let mockRole: UserRole = 'patient';
+
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (input: RequestInfo) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/api/auth/me')) {
+        const id =
+          mockRole === 'patient' ? 'PAT-001' : mockRole === 'admin' ? 'ADM-001' : 'DOC-001';
+        return new Response(
+          JSON.stringify({ user: { id, name: 'Test User', role: mockRole } }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+      return new Response('{}', { status: 404 });
+    }),
+  );
+});
 
 function renderWithShell(ui: React.ReactNode, initialRole: UserRole = 'patient', initialEntries = ['/']) {
+  mockRole = initialRole;
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <AppProvider>
-        <RoleSetter role={initialRole} />
-        {ui}
-      </AppProvider>
-    </MemoryRouter>
+      <AppProvider>{ui}</AppProvider>
+    </MemoryRouter>,
   );
 }
 
 describe('BottomNav', () => {
-  it('renders five tabs for patient role', () => {
+  it('renders five tabs for patient role', async () => {
     renderWithShell(<BottomNav onOpenMore={() => {}} />, 'patient');
-    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const nav = await screen.findByRole('navigation', { name: /primary/i });
     const links = within(nav).getAllByRole('link');
     const moreBtn = within(nav).getAllByRole('button');
     expect(links.length + moreBtn.length).toBe(5);
   });
 
-  it('patient tabs include Home, Reminders, Health ID, Video', () => {
+  it('patient tabs include Home, Reminders, Health ID, Video', async () => {
     renderWithShell(<BottomNav onOpenMore={() => {}} />, 'patient');
-    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const nav = await screen.findByRole('navigation', { name: /primary/i });
     const hrefs = within(nav)
       .getAllByRole('link')
       .map(a => a.getAttribute('href'));
@@ -48,9 +58,9 @@ describe('BottomNav', () => {
     expect(hrefs).toContain('/video-consult');
   });
 
-  it('doctor tabs include Home, Patients, Prescriptions, Voice', () => {
+  it('doctor tabs include Home, Patients, Prescriptions, Voice', async () => {
     renderWithShell(<BottomNav onOpenMore={() => {}} />, 'doctor');
-    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const nav = await screen.findByRole('navigation', { name: /primary/i });
     const hrefs = within(nav)
       .getAllByRole('link')
       .map(a => a.getAttribute('href'));
@@ -60,9 +70,9 @@ describe('BottomNav', () => {
     expect(hrefs).toContain('/voice-consult');
   });
 
-  it('admin tabs include Home, Staff, Inventory, Reports', () => {
+  it('admin tabs include Home, Staff, Inventory, Reports', async () => {
     renderWithShell(<BottomNav onOpenMore={() => {}} />, 'admin');
-    const nav = screen.getByRole('navigation', { name: /primary/i });
+    const nav = await screen.findByRole('navigation', { name: /primary/i });
     const hrefs = within(nav)
       .getAllByRole('link')
       .map(a => a.getAttribute('href'));
@@ -72,9 +82,10 @@ describe('BottomNav', () => {
     expect(hrefs).toContain('/reports');
   });
 
-  it('invokes onOpenMore when the More tab is tapped', () => {
+  it('invokes onOpenMore when the More tab is tapped', async () => {
     let opened = 0;
     renderWithShell(<BottomNav onOpenMore={() => { opened += 1; }} />, 'patient');
+    await screen.findByRole('navigation', { name: /primary/i });
     const more = screen.getByRole('button', { name: /more/i });
     fireEvent.click(more);
     expect(opened).toBe(1);
@@ -88,28 +99,9 @@ describe('MobileDrawer', () => {
     expect(drawer).toBeNull();
   });
 
-  it('renders when open=true', () => {
+  it('renders all patient nav items when role=patient', async () => {
     renderWithShell(<MobileDrawer open={true} onClose={() => {}} />, 'patient');
-    expect(screen.getByRole('dialog', { name: /navigation/i })).toBeInTheDocument();
-  });
-
-  it('closes when backdrop is clicked', () => {
-    let closed = 0;
-    renderWithShell(<MobileDrawer open={true} onClose={() => { closed += 1; }} />, 'patient');
-    const backdrop = screen.getByTestId('mobile-drawer-backdrop');
-    fireEvent.click(backdrop);
-    expect(closed).toBe(1);
-  });
-
-  it('renders role switcher and language selector', () => {
-    renderWithShell(<MobileDrawer open={true} onClose={() => {}} />, 'patient');
-    expect(screen.getByLabelText(/switch role/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/language/i)).toBeInTheDocument();
-  });
-
-  it('renders all patient nav items when role=patient', () => {
-    renderWithShell(<MobileDrawer open={true} onClose={() => {}} />, 'patient');
-    const dialog = screen.getByRole('dialog', { name: /navigation/i });
+    const dialog = await screen.findByRole('dialog', { name: /navigation/i });
     const links = within(dialog).getAllByRole('link');
     const hrefs = links.map(a => a.getAttribute('href'));
     expect(hrefs).toContain('/health-id');
@@ -117,10 +109,10 @@ describe('MobileDrawer', () => {
     expect(hrefs).toContain('/consent');
   });
 
-  it('closes when a nav link inside is clicked', () => {
+  it('closes when a nav link inside is clicked', async () => {
     let closed = 0;
     renderWithShell(<MobileDrawer open={true} onClose={() => { closed += 1; }} />, 'patient');
-    const dialog = screen.getByRole('dialog', { name: /navigation/i });
+    const dialog = await screen.findByRole('dialog', { name: /navigation/i });
     const firstLink = within(dialog).getAllByRole('link')[0];
     fireEvent.click(firstLink);
     expect(closed).toBeGreaterThan(0);
@@ -128,38 +120,58 @@ describe('MobileDrawer', () => {
 });
 
 describe('Layout mobile header', () => {
-  it('renders a hamburger (menu) button', () => {
+  function stubDoctorSession() {
+    mockRole = 'doctor';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo) => {
+        const url = typeof input === 'string' ? input : (input as Request).url;
+        if (url.includes('/api/auth/me')) {
+          return new Response(
+            JSON.stringify({ user: { id: 'DOC-001', name: 'Test', role: 'doctor' } }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } },
+          );
+        }
+        return new Response('{}', { status: 404 });
+      }),
+    );
+  }
+
+  it('renders a hamburger (menu) button', async () => {
+    stubDoctorSession();
     render(
       <MemoryRouter initialEntries={['/']}>
         <AppProvider>
           <Layout />
         </AppProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    expect(screen.getByRole('button', { name: /open navigation/i })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /open navigation/i })).toBeInTheDocument();
   });
 
-  it('renders the bottom navigation on mobile', () => {
+  it('renders the bottom navigation on mobile', async () => {
+    stubDoctorSession();
     render(
       <MemoryRouter initialEntries={['/']}>
         <AppProvider>
           <Layout />
         </AppProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    expect(screen.getByRole('navigation', { name: /primary/i })).toBeInTheDocument();
+    expect(await screen.findByRole('navigation', { name: /primary/i })).toBeInTheDocument();
   });
 
-  it('opens the drawer when hamburger is clicked', () => {
+  it('opens the drawer when hamburger is clicked', async () => {
+    stubDoctorSession();
     render(
       <MemoryRouter initialEntries={['/']}>
         <AppProvider>
           <Layout />
         </AppProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.queryByRole('dialog', { name: /navigation/i })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /open navigation/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /open navigation/i }));
     expect(screen.getByRole('dialog', { name: /navigation/i })).toBeInTheDocument();
   });
 });

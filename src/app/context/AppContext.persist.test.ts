@@ -9,7 +9,9 @@ function makeMemoryStorage() {
     removeItem: (k: string) => void store.delete(k),
     clear: () => store.clear(),
     key: (i: number) => Array.from(store.keys())[i] ?? null,
-    get length() { return store.size; },
+    get length() {
+      return store.size;
+    },
   } as Storage;
 }
 
@@ -22,32 +24,24 @@ describe('AppContext preference persistence', () => {
     expect(loadPrefs()).toEqual({});
   });
 
-  it('round-trips role, lang, and currentPatientId through localStorage', () => {
-    savePrefs({ role: 'patient', lang: 'fr', currentPatientId: 'PAT-042' });
-    expect(loadPrefs()).toEqual({ role: 'patient', lang: 'fr', currentPatientId: 'PAT-042' });
+  it('round-trips lang and currentPatientId through localStorage', () => {
+    savePrefs({ lang: 'fr', currentPatientId: 'PAT-042' });
+    expect(loadPrefs()).toEqual({ lang: 'fr', currentPatientId: 'PAT-042' });
   });
 
   it('uses the versioned storage key', () => {
-    savePrefs({ role: 'admin' });
+    savePrefs({ lang: 'ar' });
     const raw = (window as unknown as { localStorage: Storage }).localStorage.getItem(PREFS_STORAGE_KEY);
     expect(raw).toBeTruthy();
-    expect(JSON.parse(raw!)).toEqual({ role: 'admin' });
+    expect(JSON.parse(raw!)).toEqual({ lang: 'ar' });
   });
 
-  it('rejects unknown roles when loading', () => {
+  it('ignores unknown languages when loading', () => {
     (window as unknown as { localStorage: Storage }).localStorage.setItem(
       PREFS_STORAGE_KEY,
-      JSON.stringify({ role: 'hacker', lang: 'en' })
+      JSON.stringify({ lang: 'xx', currentPatientId: 'PAT-1' }),
     );
-    expect(loadPrefs()).toEqual({ lang: 'en' });
-  });
-
-  it('rejects unknown languages when loading', () => {
-    (window as unknown as { localStorage: Storage }).localStorage.setItem(
-      PREFS_STORAGE_KEY,
-      JSON.stringify({ role: 'doctor', lang: 'xx' })
-    );
-    expect(loadPrefs()).toEqual({ role: 'doctor' });
+    expect(loadPrefs()).toEqual({ currentPatientId: 'PAT-1' });
   });
 
   it('returns empty object for malformed JSON', () => {
@@ -59,13 +53,6 @@ describe('AppContext preference persistence', () => {
     for (const lang of ['en', 'fr', 'ar', 'sw', 'ha'] as const) {
       savePrefs({ lang });
       expect(loadPrefs().lang).toBe(lang);
-    }
-  });
-
-  it('accepts all three roles', () => {
-    for (const role of ['patient', 'doctor', 'admin'] as const) {
-      savePrefs({ role });
-      expect(loadPrefs().role).toBe(role);
     }
   });
 });

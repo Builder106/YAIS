@@ -2,6 +2,7 @@ const base = '/api';
 
 export async function apiFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${base}${path}`, {
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
     ...init,
   });
@@ -161,7 +162,7 @@ export async function transcribe(audio: Blob, params: { patientId: string; docto
   if (params.doctorId) fd.append('doctorId', params.doctorId);
   fd.append('source', params.source ?? 'doctor_consult');
   if (params.durationSec != null) fd.append('durationSec', String(params.durationSec));
-  const res = await fetch(`${base}/transcribe`, { method: 'POST', body: fd });
+  const res = await fetch(`${base}/transcribe`, { method: 'POST', body: fd, credentials: 'include' });
   if (!res.ok) throw new Error(`transcribe ${res.status}`);
   return (await res.json()) as { id: string; transcript: string; provider: 'openai' | 'mock'; audioExpiresAt: number };
 }

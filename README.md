@@ -33,6 +33,18 @@ npm run dev
 
 The Vite dev server proxies `/api/*` to the Express server on port 3001 and also binds to `0.0.0.0` so your phone on the same Wi‑Fi can open `http://<your-laptop-ip>:5173`.
 
+### Sign-in (demo)
+
+The UI opens a **login** screen first. After you sign in, the API issues an **HTTP-only session cookie** (`mc_session`, JWT). Seeded users (PINs configurable in `server/.env`; see `server/.env.example`):
+
+| Role | User ID | Default PIN |
+|------|---------|-------------|
+| Doctor | `DOC-001` | `4242` |
+| Patient | `PAT-001` | `1212` |
+| Admin | `ADM-001` | `3434` |
+
+For production, set `SESSION_SECRET` to a long random string (≥32 characters).
+
 ## Running tests (TDD)
 
 ```bash

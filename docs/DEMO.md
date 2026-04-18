@@ -38,6 +38,14 @@ Everything else (i18n, prescriptions, interactions, inbox, dashboards, admin) is
 
 2. Scan the QR the tunnel script prints, or AirDrop the URL to your phone.
 
+3. **Sign in** when the app loads. Sessions use a secure HTTP-only cookie after you authenticate. Demo accounts (override PINs via `server/.env` if needed):
+
+   | Role | User ID | PIN |
+   |------|---------|-----|
+   | Doctor | `DOC-001` | `4242` |
+   | Patient | `PAT-001` | `1212` |
+   | Admin | `ADM-001` | `3434` |
+
 ### Phone
 
 1. Open the tunnel URL in **Safari (iOS)** or **Chrome (Android)** — not in an in-app browser like Slack/Gmail, those block push + mic.
