@@ -33,7 +33,8 @@
     "lowBandwidth": "Kipimo kidogo",
     "offlineSync": "Usawazishaji nje",
     "onlineSync": "Usawazishaji mtandaoni",
-    "language": "Lugha"
+    "language": "Lugha",
+    "more": "Zaidi"
   },
   "role": {
     "patientPortal": "Mlango wa Mgonjwa",

@@ -33,7 +33,8 @@
     "lowBandwidth": "Low-bandwidth",
     "offlineSync": "Offline sync",
     "onlineSync": "Online sync",
-    "language": "Language"
+    "language": "Language",
+    "more": "More"
   },
   "role": {
     "patientPortal": "Patient Portal",

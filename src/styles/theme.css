@@ -216,6 +216,23 @@
   outline-offset: 2px;
 }
 
+.af-tap {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+@media (min-width: 1024px) {
+  .af-tap {
+    min-height: 0;
+    min-width: 0;
+  }
+}
+
+.af-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .af-elevate,
   .af-press,

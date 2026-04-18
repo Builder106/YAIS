@@ -33,7 +33,8 @@
     "lowBandwidth": "نطاق ترددي منخفض",
     "offlineSync": "مزامنة بدون اتصال",
     "onlineSync": "مزامنة متصلة",
-    "language": "اللغة"
+    "language": "اللغة",
+    "more": "المزيد"
   },
   "role": {
     "patientPortal": "بوابة المريض",

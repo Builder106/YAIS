@@ -21,13 +21,13 @@ function SidePattern() {
   );
 }
 
-type NavItem = {
+export type NavItem = {
   to: string;
   labelKey: string;
   icon: ComponentType<{ className?: string }>;
 };
 
-const doctorItems: NavItem[] = [
+export const doctorItems: NavItem[] = [
   { to: '/', labelKey: 'sidebar.clinicalHub', icon: Stethoscope },
   { to: '/patients', labelKey: 'sidebar.patientSearch', icon: Users },
   { to: '/appointments', labelKey: 'sidebar.queueAppointments', icon: CalendarCheck2 },
@@ -42,7 +42,7 @@ const doctorItems: NavItem[] = [
   { to: '/ai-assistant', labelKey: 'sidebar.aiClinicalAssistant', icon: Sparkles },
 ];
 
-const patientItems: NavItem[] = [
+export const patientItems: NavItem[] = [
   { to: '/', labelKey: 'sidebar.myHealthHub', icon: HeartPulse },
   { to: '/health-id', labelKey: 'sidebar.scannableHealthId', icon: Barcode },
   { to: '/records', labelKey: 'sidebar.medicalHistory', icon: FileText },
@@ -55,7 +55,7 @@ const patientItems: NavItem[] = [
   { to: '/audit-log', labelKey: 'sidebar.recordAccessLog', icon: Shield },
 ];
 
-const adminItems: NavItem[] = [
+export const adminItems: NavItem[] = [
   { to: '/', labelKey: 'sidebar.facilityCommand', icon: UserCog },
   { to: '/staff', labelKey: 'sidebar.staffManagement', icon: Users },
   { to: '/inventory', labelKey: 'sidebar.drugInventory', icon: Pill },
