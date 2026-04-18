@@ -9,6 +9,8 @@ export async function seedDemoData() {
   if (existing.length > 0) return;
 
   const demoPin = process.env.DEMO_DOCTOR_PIN ?? '4242';
+  const demoPatientPin = process.env.DEMO_PATIENT_PIN ?? '1212';
+  const demoAdminPin = process.env.DEMO_ADMIN_PIN ?? '3434';
 
   await db.insert(schema.users).values([
     {
@@ -26,8 +28,18 @@ export async function seedDemoData() {
       name: 'Amina Okafor',
       role: 'patient',
       phone: process.env.DEMO_PATIENT_PHONE ?? '+254700000002',
-      pinHash: null,
-      pinRotatedAt: null,
+      pinHash: hashPin(demoPatientPin),
+      pinRotatedAt: now,
+      failedAttempts: 0,
+      createdAt: now,
+    },
+    {
+      id: 'ADM-001',
+      name: 'Facility Admin',
+      role: 'admin',
+      phone: process.env.DEMO_ADMIN_PHONE ?? '+254700000003',
+      pinHash: hashPin(demoAdminPin),
+      pinRotatedAt: now,
       failedAttempts: 0,
       createdAt: now,
     },

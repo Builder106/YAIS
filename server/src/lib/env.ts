@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 const Schema = z.object({
   PORT: z.coerce.number().default(3001),
+  SESSION_SECRET: z.string().min(32).default('medcore-dev-session-secret-min-32-chars'),
+  SESSION_MAX_AGE_DAYS: z.coerce.number().default(7),
   DATABASE_URL: z.string().optional(),
   WEB_PUSH_PUBLIC_KEY: z.string().optional(),
   WEB_PUSH_PRIVATE_KEY: z.string().optional(),

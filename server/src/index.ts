@@ -8,7 +8,9 @@ import { resolve } from 'node:path';
 import { env } from './lib/env.js';
 import { getDb, schema } from './db/index.js';
 import { seedDemoData } from './db/seed.js';
+import { sessionMiddleware, requireApiSession } from './middleware/session.js';
 import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
 import { interactionsRouter } from './routes/interactions.js';
 import { prescriptionsRouter } from './routes/prescriptions.js';
 import { smsRouter } from './routes/sms.js';
@@ -25,11 +27,19 @@ export async function createApp() {
 
   const app = express();
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    }),
+  );
   app.use(express.json({ limit: '5mb' }));
   app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
+  app.use('/api', sessionMiddleware);
+  app.use('/api', requireApiSession);
   app.use('/api', healthRouter);
+  app.use('/api', authRouter);
   app.use('/api', patientsRouter);
   app.use('/api', interactionsRouter);
   app.use('/api', prescriptionsRouter);

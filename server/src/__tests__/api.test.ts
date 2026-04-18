@@ -6,13 +6,18 @@ process.env.DATABASE_URL = ':memory:';
 process.env.DEMO_DOCTOR_PIN = '4242';
 process.env.DEMO_DOCTOR_PHONE = '+254700000001';
 process.env.DEMO_PATIENT_PHONE = '+254700000002';
+process.env.SESSION_SECRET = 'test-session-secret-at-least-32-chars-long-ok';
 
 let app: import('express').Express;
+let agent: ReturnType<typeof request.agent>;
 
 beforeAll(async () => {
   await resetDbCacheForTests();
   const mod = await import('../index.js');
   app = await mod.createApp();
+  agent = request.agent(app);
+  const login = await agent.post('/api/auth/login').send({ userId: 'DOC-001', pin: '4242' });
+  expect(login.status).toBe(200);
 });
 
 describe('API foundation', () => {
@@ -24,7 +29,7 @@ describe('API foundation', () => {
   });
 
   it('GET /api/patients/PAT-001 returns seeded patient', async () => {
-    const res = await request(app).get('/api/patients/PAT-001');
+    const res = await agent.get('/api/patients/PAT-001');
     expect(res.status).toBe(200);
     expect(res.body.patient.firstName).toBe('Amina');
   });
@@ -32,14 +37,14 @@ describe('API foundation', () => {
 
 describe('Drug interactions (F6)', () => {
   it('returns critical for warfarin + aspirin from fallback', async () => {
-    const res = await request(app).get('/api/interactions').query({ drug1: 'Warfarin', drug2: 'Aspirin' });
+    const res = await agent.get('/api/interactions').query({ drug1: 'Warfarin', drug2: 'Aspirin' });
     expect(res.status).toBe(200);
     expect(res.body.level).toBe('critical');
     expect(res.body.source).toBe('fallback');
   });
 
   it('returns warning for metformin + ibuprofen', async () => {
-    const res = await request(app).get('/api/interactions').query({ drug1: 'Metformin', drug2: 'Ibuprofen' });
+    const res = await agent.get('/api/interactions').query({ drug1: 'Metformin', drug2: 'Ibuprofen' });
     expect(res.body.level).toBe('warning');
   });
 
@@ -56,7 +61,7 @@ describe('Drug interactions (F6)', () => {
       status: 'active',
       createdAt: Date.now(),
     }).run();
-    const res = await request(app).post('/api/prescriptions').send({
+    const res = await agent.post('/api/prescriptions').send({
       patientId: 'PAT-001', doctorId: 'DOC-001',
       drugName: 'Aspirin', dosage: '81mg', frequency: 'Once daily',
     });
@@ -65,7 +70,7 @@ describe('Drug interactions (F6)', () => {
   });
 
   it('allows critical interaction with acknowledgement + valid PIN', async () => {
-    const res = await request(app).post('/api/prescriptions').send({
+    const res = await agent.post('/api/prescriptions').send({
       patientId: 'PAT-001', doctorId: 'DOC-001',
       drugName: 'Aspirin', dosage: '81mg', frequency: 'Once daily',
       acknowledgedInteractions: [{ drugB: 'Warfarin', level: 'critical' }],
@@ -102,7 +107,7 @@ describe('SMS offline (F4)', () => {
 
 describe('Reminders + adherence (F5)', () => {
   it('records adherence response and updates rate', async () => {
-    const create = await request(app).post('/api/reminders').send({
+    const create = await agent.post('/api/reminders').send({
       prescriptionId: 'RX-001',
       patientId: 'PAT-001',
       times: ['08:00'],
@@ -112,7 +117,7 @@ describe('Reminders + adherence (F5)', () => {
     });
     expect(create.status).toBe(201);
 
-    const adherence = await request(app).get('/api/patients/PAT-001/adherence');
+    const adherence = await agent.get('/api/patients/PAT-001/adherence');
     expect(adherence.status).toBe(200);
     expect(adherence.body.ratePct).toBeGreaterThanOrEqual(0);
     expect(adherence.body.events.length).toBeGreaterThan(0);
@@ -122,7 +127,7 @@ describe('Reminders + adherence (F5)', () => {
 describe('Voice transcription (F2)', () => {
   it('accepts audio upload and returns mock transcript when no OpenAI key', async () => {
     delete process.env.OPENAI_API_KEY;
-    const res = await request(app)
+    const res = await agent
       .post('/api/transcribe')
       .field('patientId', 'PAT-001')
       .field('doctorId', 'DOC-001')
@@ -136,7 +141,7 @@ describe('Voice transcription (F2)', () => {
 
 describe('Video consult (F3)', () => {
   it('creates a session with a mock room URL', async () => {
-    const res = await request(app).post('/api/video/sessions').send({ patientId: 'PAT-001', doctorId: 'DOC-001' });
+    const res = await agent.post('/api/video/sessions').send({ patientId: 'PAT-001', doctorId: 'DOC-001' });
     expect(res.status).toBe(201);
     expect(res.body.room.url).toMatch(/https?:/);
     expect(['daily', 'mock']).toContain(res.body.room.provider);
