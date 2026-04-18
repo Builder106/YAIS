@@ -90,6 +90,24 @@ The rest of this document is reference material for each feature — what to sho
 
 ---
 
+## Mobile navigation quick reference
+
+Below the `lg` breakpoint (under 1024px, i.e. phones and most tablets):
+
+- **Hamburger** (top-left of the header) opens a full off-canvas drawer with every route for the active role, plus the language picker, role switcher, low-bandwidth toggle, offline-sync toggle, and USSD/AES/FHIR compliance badges.
+- **Bottom tab bar** keeps the 4 most-used routes for the active role one tap away, with a fifth **More** tab that re-opens the drawer.
+  - Patient: Home, Reminders, Health ID, Video, More
+  - Doctor: Home, Patients, Prescriptions, Voice, More
+  - Admin: Home, Staff, Inventory, Reports, More
+- **Header** is simplified on mobile — hamburger, page title + role chip, notification bell, avatar. All the pills (low-bandwidth, FHIR, AES) live inside the drawer to keep the phone header uncluttered.
+- **Safe-area insets** are respected, so the bottom tab sits above the iOS home indicator and the header sits below the notch.
+
+At `lg+` the classic sidebar + full pill header returns.
+
+Throughout the 7-step narrative above, "sidebar" on phone means "bottom tab or hamburger drawer" — everything is still one tap away.
+
+---
+
 ## 1. PWA install — "This is an app, not a webpage"
 
 ### Why phone
@@ -123,7 +141,7 @@ Doctors in African clinics often consult bedside with a phone, not a laptop. The
 ### Show it
 
 1. Log in as **Doctor** (role toggle).
-2. Navigate to **Voice Consult** (in the sidebar, mic icon).
+2. Navigate to **Voice Consult** — on phone it's the **Mic** tab in the bottom bar (Doctor role); on desktop it's in the sidebar.
 3. Check the consent checkbox ("I agree to the recording") — mention audio retention is 30 days and auto-purged (`purgeExpiredAudio` in `server/src/routes/voice.ts`).
 4. Tap **Record** — allow mic when iOS prompts.
 5. Dictate into the phone for ~15–30 seconds, e.g.:
